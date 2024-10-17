@@ -1,0 +1,38 @@
+{
+  "name": "unipay",
+  "version": "1.0.0",
+  "description": "A unified payment gateway SDK for JavaScript.",
+  "main": "src/index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pushparaj13811/unipay.git"
+  },
+  "keywords": [
+    "payment",
+    "gateway",
+    "sdk",
+    "unified",
+    "javascript"
+  ],
+  "author": "Hompushparaj Mehta",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/Pushparaj13811/unipay/issues"
+  },
+  "homepage": "https://github.com/Pushparaj13811/unipay#readme",
+  "dependencies": {
+    "braintree": "^3.25.0",
+    "cashfree-sdk": "^0.1.1",
+    "paytm-sdk": "^0.0.2",
+    "payu-sdk": "^1.1.1",
+    "razorpay": "^2.9.4",
+    "square": "^38.2.0",
+    "stripe": "^17.2.0"
+  }
+}
