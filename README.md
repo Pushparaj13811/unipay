@@ -40,14 +40,16 @@
 
 To install **uniPay** in a JavaScript project, you can use npm, yarn, or pnpm. Run one of the following commands in your project directory:
 
-```bash
-# Using npm
+- ### Using npm
+```
 npm install unipay
-
-# Using yarn
+```
+- ### Using yarn
+```
 yarn add unipay
-
-# Using pnpm
+```
+- ### Using pnpm
+```
 pnpm install unipay
 ```
 
@@ -355,112 +357,92 @@ async function processPaymentsConcurrently(payments) {
 }
 ```
 
-## Supported Frameworks and Languages
-
-Below are the installation instructions and usage examples for the supported frameworks and languages.
-
-### JavaScript (Node.js, Bun, Deno, Hono)
-
-#### Installation
-```bash
-# Using npm
-npm install unipay
-
-# Using yarn
-yarn add unipay
-
-# Using pnpm
-pnpm install unipay
-```
-
-#### Example Code
-```javascript
-const uniPay = require('unipay');
-
-const paymentProcessor = new uniPay({
-    gateways: {
-        paypal: { clientId: 'YOUR_PAYPAL_CLIENT_ID', secret: 'YOUR_PAYPAL_SECRET' },
-        razorpay: { keyId: 'YOUR_RAZORPAY_KEY_ID', keySecret: 'YOUR_RAZORPAY_KEY_SECRET' },
-        stripe: { apiKey: 'YOUR_STRIPE_API_KEY' },
-        // Add other gateways as needed
-    }
-});
-
-// Process a payment
-const paymentDetails = { amount: 1000, currency: 'USD', paymentGateway: 'paypal' };
-
-paymentProcessor.processPayment(paymentDetails)
-    .then(response => {
-        console.log('Payment Successful:', response);
-    })
-    .catch(error => {
-        console.error('Payment Failed:', error);
-        // Handle specific error cases as demonstrated above
-    });
-```
-
-### PHP (Laravel)
-
-#### Installation
-```bash
-composer require unipay/unipay
-```
-
-#### Example Code
-```php
-use Unipay\UniPay;
-
-$paymentProcessor = new UniPay([
-    'gateways' => [
-        'paypal' => ['clientId' => 'YOUR_PAYPAL_CLIENT_ID', 'secret' => 'YOUR_PAYPAL_SECRET'],
-        'razorpay' => ['keyId' => 'YOUR_RAZORPAY_KEY_ID', 'keySecret' => 'YOUR_RAZORPAY_KEY_SECRET'],
-        'stripe' => ['apiKey' => 'YOUR_STRIPE_API_KEY'],
-        // Add other gateways as needed
-    ],
-]);
-
-$paymentDetails = ['amount' => 1000, 'currency' => 'USD', 'paymentGateway' => 'paypal'];
-
-try {
-    $response = $paymentProcessor->processPayment($paymentDetails);
-    echo 'Payment Successful: ' . json_encode($response);
-} catch (Exception $e) {
-    echo 'Payment Failed: ' . $e->getMessage();
-    // Handle specific error cases as demonstrated above
-}
-```
-
-### Python (Django)
-
-#### Installation
-```bash
-pip install unipay
-```
-
-#### Example Code
-```python
-from unipay import UniPay
-
-payment_processor = UniPay(gateways={
-    'paypal': {'clientId': 'YOUR_PAYPAL_CLIENT_ID', 'secret': 'YOUR_PAYPAL_SECRET'},
-    'razorpay': {'keyId': 'YOUR_RAZORPAY_KEY_ID', 'keySecret': 'YOUR_RAZORPAY_KEY_SECRET'},
-    'stripe': {'apiKey': 'YOUR_STRIPE_API_KEY'},
-    # Add other gateways as needed
-})
-
-payment_details = {'amount': 1000, 'currency': 'USD', 'paymentGateway': 'paypal'}
-
-try:
-    response = payment_processor.process_payment(payment_details)
-    print('Payment Successful:', response)
-except Exception as e:
-    print('Payment Failed:', str(e))
-    # Handle specific error cases as demonstrated above
-```
-
 # Folder Structure
 
-
+```
+uniPay/
+├── js-sdk/                        # JavaScript SDK
+│   ├── src/
+│   │   ├── index.js               # Main entry point
+│   │   ├── config.js              # SDK configuration
+│   │   ├── gateways/              # Payment gateway integrations
+│   │   │   ├── paypal.js          # PayPal integration
+│   │   │   ├── razorpay.js        # Razorpay integration
+│   │   │   ├── stripe.js          # Stripe integration
+│   │   │   ├── phonepe.js         # PhonePe integration
+│   │   │   ├── paytm.js           # Paytm integration
+│   │   │   ├── payu.js            # PayU integration
+│   │   │   └── easebuzz.js        # Easebuzz integration
+│   │   ├── utils.js               # Utility functions
+│   │   ├── errors.js              # Custom error handling
+│   │   ├── validators.js           # Input validation
+│   │   └── tests/                 # Testing scripts
+│   │       ├── test_gateways.js    # Tests for gateways
+│   │       ├── test_utils.js        # Tests for utility functions
+│   │       └── test_validators.js   # Tests for validators
+│   ├── examples/                  # Example usage
+│   │   ├── basic_example.js        # Basic usage example
+│   │   └── advanced_example.js      # Advanced usage example
+│   ├── package.json                # Package configuration for npm
+│   └── README.md                   # Documentation for JavaScript SDK
+├── php-sdk/                       # PHP SDK (Laravel)
+│   ├── src/
+│   │   ├── UniPayServiceProvider.php # Service provider
+│   │   ├── Facades/                # Facades for easier access
+│   │   │   └── UniPay.php          # Facade for UniPay
+│   │   ├── config/                 # Configuration files
+│   │   │   └── unipay.php          # Configuration settings
+│   │   ├── gateways/               # Payment gateway integrations
+│   │   │   ├── PayPal.php          # PayPal integration
+│   │   │   ├── Razorpay.php        # Razorpay integration
+│   │   │   ├── Stripe.php          # Stripe integration
+│   │   │   ├── PhonePe.php         # PhonePe integration
+│   │   │   ├── Paytm.php           # Paytm integration
+│   │   │   ├── PayU.php            # PayU integration
+│   │   │   └── Easebuzz.php        # Easebuzz integration
+│   │   ├── Exceptions/             # Custom exception classes
+│   │   │   ├── PaymentException.php  # General payment exception
+│   │   │   ├── GatewayException.php   # Gateway-specific exceptions
+│   │   │   └── ConfigurationException.php # Configuration exceptions
+│   │   ├── Tests/                  # Testing scripts
+│   │   │   ├── GatewayTest.php      # Tests for gateways
+│   │   │   ├── UnitTest.php         # Unit tests for core functionality
+│   │   │   └── IntegrationTest.php   # Integration tests
+│   │   └── examples/               # Example usage
+│   │       ├── basic_example.php     # Basic example
+│   │       └── advanced_example.php   # Advanced example
+│   ├── composer.json               # Composer package configuration
+│   └── README.md                   # Documentation for PHP SDK
+└── python-sdk/                    # Python SDK (Django)
+    ├── uniPay/
+    │   ├── __init__.py             # Package initialization
+    │   ├── settings.py             # SDK settings and configuration
+    │   ├── urls.py                 # URL routing for the SDK
+    │   ├── views.py                # Views for payment processing
+    │   ├── gateways/               # Payment gateway integrations
+    │   │   ├── __init__.py         # Gateway package initialization
+    │   │   ├── paypal.py           # PayPal integration
+    │   │   ├── razorpay.py         # Razorpay integration
+    │   │   ├── stripe.py           # Stripe integration
+    │   │   ├── phonepe.py          # PhonePe integration
+    │   │   ├── paytm.py            # Paytm integration
+    │   │   ├── payu.py             # PayU integration
+    │   │   └── easebuzz.py         # Easebuzz integration
+    │   ├── utils.py                # Utility functions
+    │   ├── errors.py               # Custom error handling
+    │   ├── validators.py           # Input validation logic
+    │   ├── tests/                  # Testing scripts
+    │   │   ├── __init__.py          # Test package initialization
+    │   │   ├── test_gateways.py      # Tests for payment gateways
+    │   │   ├── test_views.py         # Tests for views
+    │   │   └── test_utils.py         # Tests for utility functions
+    │   └── examples/               # Example usage
+    │       ├── basic_example.py      # Basic usage example
+    │       └── advanced_example.py    # Advanced usage example
+    ├── setup.py                     # Package setup for Python installation
+    ├── requirements.txt             # Dependencies for the SDK
+    └── README.md                    # Documentation for Python SDK
+```
 
 ## Testing
 
