@@ -1,17 +1,18 @@
 import StripeGateway from './stripe.js';
 import RazorpayGateway from './razorpay.js';
+import { UniPayError } from '../errors.js';
 
-export class PaymentGateway {
-  static initialize(gatewayName, config) {
+export const PaymentGateway = {
+  initialize(gatewayName, credentials) {
     switch (gatewayName.toLowerCase()) {
       case 'stripe':
-        return new StripeGateway(config.stripe);
+        return new StripeGateway(credentials);
       case 'razorpay':
-        return new RazorpayGateway(config.razorpay);
+        return new RazorpayGateway(credentials);
       default:
-        throw new Error(`Payment gateway ${gatewayName} is not supported`);
+        throw new UniPayError(`Unsupported gateway: ${gatewayName}`);
     }
   }
-}
+};
 
 module.exports = { PaymentGateway };
