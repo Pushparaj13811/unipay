@@ -2,7 +2,8 @@
   "name": "unipay",
   "version": "1.0.0",
   "description": "A unified payment gateway SDK for JavaScript.",
-  "main": "src/index.js",
+  "main": "index.cjs.js",
+  "module": "src/index.js",
   "type": "module",
   "directories": {
     "example": "examples"
