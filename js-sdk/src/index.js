@@ -2,19 +2,21 @@ const { createRequire } = require('module');
 const require = createRequire(import.meta.url);
 
 import { PaymentGateway } from './gateways/index.js';
-import { handleWebhook } from './utils.js';
+import { handleWebhook, createPaymentGateway } from './utils.js';
+import { validatePaymentData, validateWebhook, validateGatewayCredentials } from './validators.js';
 import { UniPayError } from './errors.js';
 
 class UniPay {
   constructor() {
     this.gateways = {};
   }
-
   registerPaymentGateway(gatewayName, credentials) {
-    this.gateways[gatewayName] = PaymentGateway.initialize(gatewayName, credentials);
+    validateGatewayCredentials(gatewayName, credentials);
+    this.gateways[gatewayName] = createPaymentGateway(gatewayName, credentials);
   }
 
   async initiatePayment(gatewayName, paymentData) {
+    validatePaymentData(gatewayName,paymentData);
     try {
       const gateway = this.getGateway(gatewayName);
       const paymentResponse = await gateway.processPayment(paymentData);
@@ -55,6 +57,7 @@ class UniPay {
   }
 
   async handleWebhook(gatewayName, requestData) {
+    validateWebhook(gatewayName, requestData);
     try {
       return handleWebhook(gatewayName, requestData);
     } catch (error) {
