@@ -1,5 +1,4 @@
-import StripeGateway from "./gateways/stripe.js";
-import RazorpayGateway from "./gateways/razorpay.js";
+import { UniPayError } from './errors.js';
 
 export const handleWebhook = (gatewayName, requestData) => {
   switch (gatewayName.toLowerCase()) {
@@ -8,7 +7,7 @@ export const handleWebhook = (gatewayName, requestData) => {
     case "razorpay":
       return verifyRazorpayWebhook(requestData);
     default:
-      throw new Error(`Webhook handling for ${gatewayName} not implemented`);
+      throw new UniPayError(`Webhook handling for ${gatewayName} not implemented`);
   }
 };
 
@@ -23,7 +22,7 @@ const verifyStripeWebhook = (requestData) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (error) {
-    throw new Error(`Stripe Webhook Verification Error: ${error.message}`);
+    throw new UniPayError(`Stripe Webhook Verification Error: ${error.message}`);
   }
 };
 
@@ -40,9 +39,20 @@ const verifyRazorpayWebhook = (requestData) => {
     if (generatedSignature === requestData.headers["x-razorpay-signature"]) {
       return requestData.body;
     } else {
-      throw new Error("Invalid Razorpay signature");
+      throw new UniPayError("Invalid Razorpay signature");
     }
   } catch (error) {
-    throw new Error(`Razorpay Webhook Verification Error: ${error.message}`);
+    throw new UniPayError(`Razorpay Webhook Verification Error: ${error.message}`);
+  }
+};
+
+export const createPaymentGateway = (gatewayName, credentials) => {
+  switch (gatewayName.toLowerCase()) {
+    case "stripe":
+      return new StripeGateway(credentials);
+    case "razorpay":
+      return new RazorpayGateway(credentials);
+    default:
+      throw new UniPayError(`Payment gateway ${gatewayName} not supported`);
   }
 };
