@@ -1,11 +1,14 @@
-import { Client, Environment } from 'square';
-import { UniPayError } from '../errors.js';
+import { Client, Environment } from "square";
+import { UniPayError } from "../errors.js";
 
 class SquareGateway {
   constructor(credentials) {
     this.client = new Client({
       accessToken: credentials.accessToken,
-      environment: credentials.environment === 'production' ? Environment.Production : Environment.Sandbox
+      environment:
+        credentials.environment === "production"
+          ? Environment.Production
+          : Environment.Sandbox,
     });
     this.paymentsApi = this.client.paymentsApi;
   }
@@ -17,16 +20,16 @@ class SquareGateway {
         idempotencyKey: `idempotency_key_${Date.now()}`,
         amountMoney: {
           amount: Math.round(paymentData.amount * 100),
-          currency: paymentData.currency
+          currency: paymentData.currency,
         },
-        customerId: paymentData.customerId
+        customerId: paymentData.customerId,
       });
 
       return {
         id: response.result.payment.id,
         amount: response.result.payment.amountMoney.amount / 100,
         currency: response.result.payment.amountMoney.currency,
-        status: response.result.payment.status
+        status: response.result.payment.status,
       };
     } catch (error) {
       throw new UniPayError(`Square Payment Error: ${error.message}`);
@@ -41,7 +44,7 @@ class SquareGateway {
         id: response.result.payment.id,
         amount: response.result.payment.amountMoney.amount / 100,
         currency: response.result.payment.amountMoney.currency,
-        status: response.result.payment.status
+        status: response.result.payment.status,
       };
     } catch (error) {
       throw new UniPayError(`Square Status Error: ${error.message}`);
@@ -50,7 +53,7 @@ class SquareGateway {
 
   async handleWebhook(webhookData) {
     // Implement webhook handling logic here
-    throw new UniPayError('Square webhook handling not implemented');
+    throw new UniPayError("Square webhook handling not implemented");
   }
 }
 

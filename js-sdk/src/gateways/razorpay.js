@@ -1,5 +1,5 @@
-import Razorpay from 'razorpay';
-import { UniPayError } from '../errors.js';
+import Razorpay from "razorpay";
+import { UniPayError } from "../errors.js";
 
 class RazorpayGateway {
   constructor(credentials) {
@@ -18,7 +18,7 @@ class RazorpayGateway {
         notes: {
           email: paymentData.customerEmail,
           phone: paymentData.customerPhone,
-          description: paymentData.description
+          description: paymentData.description,
         },
         payment_capture: 1,
       });
@@ -29,13 +29,19 @@ class RazorpayGateway {
         receipt: order.receipt,
       };
     } catch (error) {
-      throw new UniPayError(`Razorpay Payment Error: ${error.message}`, error.statusCode);
+      throw new UniPayError(
+        `Razorpay Payment Error: ${error.message}`,
+        error.statusCode
+      );
     }
   }
 
   async capturePayment(paymentId, amount) {
     try {
-      const payment = await this.instance.payments.capture(paymentId, amount * 100);
+      const payment = await this.instance.payments.capture(
+        paymentId,
+        amount * 100
+      );
       return {
         id: payment.id,
         amount: payment.amount / 100,
@@ -43,7 +49,10 @@ class RazorpayGateway {
         status: payment.status,
       };
     } catch (error) {
-      throw new UniPayError(`Razorpay Capture Error: ${error.message}`, error.statusCode);
+      throw new UniPayError(
+        `Razorpay Capture Error: ${error.message}`,
+        error.statusCode
+      );
     }
   }
 
@@ -57,7 +66,10 @@ class RazorpayGateway {
         status: payment.status,
       };
     } catch (error) {
-      throw new UniPayError(`Razorpay Status Error: ${error.message}`, error.statusCode);
+      throw new UniPayError(
+        `Razorpay Status Error: ${error.message}`,
+        error.statusCode
+      );
     }
   }
 
@@ -65,7 +77,7 @@ class RazorpayGateway {
     // Implement Razorpay-specific webhook handling logic here
     // This method should verify the webhook signature and process the event
     // Return processed webhook data or throw an error if verification fails
-    throw new UniPayError('Razorpay webhook handling not implemented');
+    throw new UniPayError("Razorpay webhook handling not implemented");
   }
 }
 

@@ -1,10 +1,14 @@
-const { createRequire } = require('module');
+const { createRequire } = require("module");
 const require = createRequire(import.meta.url);
 
-import { PaymentGateway } from './gateways/index.js';
-import { handleWebhook, createPaymentGateway } from './utils.js';
-import { validatePaymentData, validateWebhook, validateGatewayCredentials } from './validators.js';
-import { UniPayError } from './errors.js';
+import { PaymentGateway } from "./gateways/index.js";
+import { handleWebhook, createPaymentGateway } from "./utils.js";
+import {
+  validatePaymentData,
+  validateWebhook,
+  validateGatewayCredentials,
+} from "./validators.js";
+import { UniPayError } from "./errors.js";
 
 class UniPay {
   constructor() {
@@ -16,12 +20,12 @@ class UniPay {
   }
 
   async initiatePayment(gatewayName, paymentData) {
-    validatePaymentData(gatewayName,paymentData);
+    validatePaymentData(gatewayName, paymentData);
     try {
       const gateway = this.getGateway(gatewayName);
       const paymentResponse = await gateway.processPayment(paymentData);
 
-      if (!paymentResponse.id) throw new UniPayError('Payment ID is missing.');
+      if (!paymentResponse.id) throw new UniPayError("Payment ID is missing.");
 
       return paymentResponse;
     } catch (error) {
@@ -75,6 +79,6 @@ class UniPay {
 }
 
 export default UniPay;
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = UniPay; 
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = UniPay;
 }

@@ -36,6 +36,7 @@
     "joi": "^17.13.3",
     "paytm-sdk": "^0.0.2",
     "payu-sdk": "^1.1.1",
+    "prettier": "^3.3.3",
     "razorpay": "^2.9.4",
     "square": "^38.2.0",
     "stripe": "^17.2.0"

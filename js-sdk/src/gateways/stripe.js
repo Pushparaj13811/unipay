@@ -1,5 +1,5 @@
-import Stripe from 'stripe';
-import { UniPayError } from '../errors.js';
+import Stripe from "stripe";
+import { UniPayError } from "../errors.js";
 
 class StripeGateway {
   constructor(credentials) {
@@ -12,22 +12,25 @@ class StripeGateway {
         amount: Math.round(paymentData.amount * 100), // Stripe expects amount in cents
         currency: paymentData.currency,
         description: paymentData.description,
-        payment_method_types: ['card'],
-        capture_method: 'automatic',
+        payment_method_types: ["card"],
+        capture_method: "automatic",
         metadata: {
           customerEmail: paymentData.customerEmail,
-          customerPhone: paymentData.customerPhone
-        }
+          customerPhone: paymentData.customerPhone,
+        },
       });
       return {
         id: paymentIntent.id,
         amount: paymentIntent.amount / 100,
         currency: paymentIntent.currency,
         status: paymentIntent.status,
-        clientSecret: paymentIntent.client_secret
+        clientSecret: paymentIntent.client_secret,
       };
     } catch (error) {
-      throw new UniPayError(`Stripe Payment Error: ${error.message}`, error.statusCode);
+      throw new UniPayError(
+        `Stripe Payment Error: ${error.message}`,
+        error.statusCode
+      );
     }
   }
 
@@ -38,24 +41,31 @@ class StripeGateway {
         id: paymentIntent.id,
         amount: paymentIntent.amount / 100,
         currency: paymentIntent.currency,
-        status: paymentIntent.status
+        status: paymentIntent.status,
       };
     } catch (error) {
-      throw new UniPayError(`Stripe Capture Error: ${error.message}`, error.statusCode);
+      throw new UniPayError(
+        `Stripe Capture Error: ${error.message}`,
+        error.statusCode
+      );
     }
   }
 
   async getPaymentStatus(paymentId) {
     try {
-      const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentId);
+      const paymentIntent =
+        await this.stripe.paymentIntents.retrieve(paymentId);
       return {
         id: paymentIntent.id,
         amount: paymentIntent.amount / 100,
         currency: paymentIntent.currency,
-        status: paymentIntent.status
+        status: paymentIntent.status,
       };
     } catch (error) {
-      throw new UniPayError(`Stripe Status Error: ${error.message}`, error.statusCode);
+      throw new UniPayError(
+        `Stripe Status Error: ${error.message}`,
+        error.statusCode
+      );
     }
   }
 
@@ -68,10 +78,10 @@ class StripeGateway {
       );
       // Process the event based on its type
       switch (event.type) {
-        case 'payment_intent.succeeded':
+        case "payment_intent.succeeded":
           // Handle successful payment
           break;
-        case 'payment_intent.payment_failed':
+        case "payment_intent.payment_failed":
           // Handle failed payment
           break;
         // Add more event types as needed
@@ -80,7 +90,10 @@ class StripeGateway {
       }
       return event;
     } catch (error) {
-      throw new UniPayError(`Stripe Webhook Error: ${error.message}`, error.statusCode);
+      throw new UniPayError(
+        `Stripe Webhook Error: ${error.message}`,
+        error.statusCode
+      );
     }
   }
 }

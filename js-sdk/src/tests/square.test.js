@@ -1,74 +1,74 @@
-import SquareGateway from '../gateways/square';
-import { UniPayError } from '../errors';
-import { Client } from 'square';
+import SquareGateway from "../gateways/square";
+import { UniPayError } from "../errors";
+import { Client } from "square";
 
-jest.mock('square');
+jest.mock("square");
 
-describe('SquareGateway', () => {
+describe("SquareGateway", () => {
   let gateway;
 
   beforeEach(() => {
     gateway = new SquareGateway({
-      accessToken: 'test_access_token',
-      environment: 'sandbox'
+      accessToken: "test_access_token",
+      environment: "sandbox",
     });
   });
 
-  test('processPayment should create a payment', async () => {
+  test("processPayment should create a payment", async () => {
     const mockCreatePayment = jest.fn().mockResolvedValue({
       result: {
         payment: {
-          id: 'test_payment_id',
+          id: "test_payment_id",
           amountMoney: {
             amount: 1000,
-            currency: 'USD'
+            currency: "USD",
           },
-          status: 'COMPLETED'
-        }
-      }
+          status: "COMPLETED",
+        },
+      },
     });
     gateway.paymentsApi.createPayment = mockCreatePayment;
 
     const result = await gateway.processPayment({
-      sourceId: 'test_source_id',
+      sourceId: "test_source_id",
       amount: 10,
-      currency: 'USD',
-      customerId: 'test_customer_id'
+      currency: "USD",
+      customerId: "test_customer_id",
     });
 
     expect(result).toEqual({
-      id: 'test_payment_id',
+      id: "test_payment_id",
       amount: 10,
-      currency: 'USD',
-      status: 'COMPLETED'
+      currency: "USD",
+      status: "COMPLETED",
     });
     expect(mockCreatePayment).toHaveBeenCalled();
   });
 
-  test('getPaymentStatus should retrieve payment status', async () => {
+  test("getPaymentStatus should retrieve payment status", async () => {
     const mockGetPayment = jest.fn().mockResolvedValue({
       result: {
         payment: {
-          id: 'test_payment_id',
+          id: "test_payment_id",
           amountMoney: {
             amount: 1000,
-            currency: 'USD'
+            currency: "USD",
           },
-          status: 'COMPLETED'
-        }
-      }
+          status: "COMPLETED",
+        },
+      },
     });
     gateway.paymentsApi.getPayment = mockGetPayment;
 
-    const result = await gateway.getPaymentStatus('test_payment_id');
+    const result = await gateway.getPaymentStatus("test_payment_id");
 
     expect(result).toEqual({
-      id: 'test_payment_id',
+      id: "test_payment_id",
       amount: 10,
-      currency: 'USD',
-      status: 'COMPLETED'
+      currency: "USD",
+      status: "COMPLETED",
     });
-    expect(mockGetPayment).toHaveBeenCalledWith('test_payment_id');
+    expect(mockGetPayment).toHaveBeenCalledWith("test_payment_id");
   });
 
   // Add more tests for handleWebhook when implemented
