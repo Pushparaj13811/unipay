@@ -20,14 +20,19 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     - name: Install dependencies
-      run: npm install
+      run: |
+        cd js-sdk  
+        npm install
 
     - name: Build the package
-      run: npm run build  # If you have a build step, otherwise you can skip this
+      run: |
+        cd js-sdk  
+        npm run build  
 
     - name: Bump version and publish to npm
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
-        npm version patch  # You can also use minor or major depending on your versioning strategy
+        cd js-sdk  
+        npm version patch  
         npm publish
