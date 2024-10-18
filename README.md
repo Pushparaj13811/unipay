@@ -9,12 +9,8 @@
 - [Features](#features)
 - [Installation](#installation)
   - [JavaScript (Node.js, Bun, Deno, Hono)](#javascript-nodejs-bun-deno-hono)
-  - [PHP (Laravel)](#php-laravel)
-  - [Python (Django)](#python-django)
 - [Usage](#usage)
   - [JavaScript Example](#javascript-example)
-  - [PHP Example](#php-example)
-  - [Python Example](#python-example)
 - [Supported Gateways](#supported-gateways)
 - [Configuration](#configuration)
 - [Error Handling](#error-handling)
@@ -36,37 +32,31 @@
 
 ## Installation
 
+**Note:** This package is not yet published to npm. Once published, you'll be able to install it using the following methods:
+
 ### JavaScript (Node.js, Bun, Deno, Hono)
 
-To install **uniPay** in a JavaScript project, you can use npm, yarn, or pnpm. Run one of the following commands in your project directory:
+To install **uniPay** in a JavaScript project, you will be able to use npm, yarn, or pnpm. Run one of the following commands in your project directory:
 
 - ### Using npm
 ```
-npm install unipay
+npm install unipay-js-sdk
 ```
 - ### Using yarn
 ```
-yarn add unipay
+yarn add unipay-js-sdk
 ```
 - ### Using pnpm
 ```
-pnpm install unipay
+pnpm install unipay-js-sdk
 ```
 
-### PHP (Laravel)
-
-To install **uniPay** in a Laravel project, you can use Composer. Run the following command in your project directory:
+For now, you can clone the repository and install dependencies:
 
 ```bash
-composer require unipay/unipay
-```
-
-### Python (Django)
-
-To install **uniPay** in a Django project, you can use pip. Run the following command in your project directory:
-
-```bash
-pip install unipay
+git clone https://github.com/Pushparaj13811/unipay.git
+cd unipay/js-sdk
+npm install
 ```
 
 ## Usage
@@ -74,126 +64,42 @@ pip install unipay
 ### JavaScript Example
 
 ```javascript
-// Import the uniPay SDK
-const uniPay = require("unipay");
+import UniPay from 'unipay-js-sdk';
 
-// Create a new instance of uniPay
-const paymentProcessor = new uniPay({
-  gateways: {
-    paypal: {
-      clientId: "YOUR_PAYPAL_CLIENT_ID",
-      secret: "YOUR_PAYPAL_SECRET",
-    },
-    razorpay: {
-      keyId: "YOUR_RAZORPAY_KEY_ID",
-      keySecret: "YOUR_RAZORPAY_KEY_SECRET",
-    },
-    stripe: {
-      apiKey: "YOUR_STRIPE_API_KEY",
-    },
-    // Add other gateways as needed
-  },
+const unipay = new UniPay();
+
+unipay.registerPaymentGateway('stripe', {
+  apiKey: 'your_stripe_api_key'
+});
+
+unipay.registerPaymentGateway('razorpay', {
+  apiKey: 'your_razorpay_key_id',
+  apiSecret: 'your_razorpay_key_secret'
 });
 
 // Process a payment
-const paymentDetails = {
-  amount: 1000, // Amount in cents or the smallest currency unit
-  currency: "USD",
-  paymentGateway: "paypal", // Select the gateway to use
-};
-
-paymentProcessor
-  .processPayment(paymentDetails)
-  .then((response) => {
-    console.log("Payment Successful:", response);
-  })
-  .catch((error) => {
-    console.error("Payment Failed:", error);
-  });
-```
-
-### PHP Example (Laravel)
-
-```php
-use Unipay\UniPay;
-
-// Create a new instance of UniPay
-$paymentProcessor = new UniPay([
-    'gateways' => [
-        'paypal' => [
-            'clientId' => 'YOUR_PAYPAL_CLIENT_ID',
-            'secret' => 'YOUR_PAYPAL_SECRET',
-        ],
-        'razorpay' => [
-            'keyId' => 'YOUR_RAZORPAY_KEY_ID',
-            'keySecret' => 'YOUR_RAZORPAY_KEY_SECRET',
-        ],
-        'stripe' => [
-            'apiKey' => 'YOUR_STRIPE_API_KEY',
-        ],
-        // Add other gateways as needed
-    ],
-]);
-
-// Process a payment
-$paymentDetails = [
-    'amount' => 1000, // Amount in smallest currency unit
-    'currency' => 'USD',
-    'paymentGateway' => 'paypal', // Select the gateway to use
-];
-
 try {
-    $response = $paymentProcessor->processPayment($paymentDetails);
-    echo 'Payment Successful: ' . json_encode($response);
-} catch (Exception $e) {
-    echo 'Payment Failed: ' . $e->getMessage();
+  const paymentResult = await unipay.initiatePayment('stripe', {
+    amount: 1000,
+    currency: 'USD',
+    description: 'Test payment',
+    customerEmail: 'customer@example.com',
+    customerPhone: '+1234567890'
+  });
+  console.log('Payment processed:', paymentResult);
+} catch (error) {
+  console.error('Payment processing error:', error.message);
 }
-```
-
-### Python Example (Django)
-
-```python
-from unipay import UniPay
-
-# Create a new instance of UniPay
-payment_processor = UniPay(gateways={
-    'paypal': {
-        'clientId': 'YOUR_PAYPAL_CLIENT_ID',
-        'secret': 'YOUR_PAYPAL_SECRET',
-    },
-    'razorpay': {
-        'keyId': 'YOUR_RAZORPAY_KEY_ID',
-        'keySecret': 'YOUR_RAZORPAY_KEY_SECRET',
-    },
-    'stripe': {
-        'apiKey': 'YOUR_STRIPE_API_KEY',
-    },
-    # Add other gateways as needed
-})
-
-# Process a payment
-payment_details = {
-    'amount': 1000,  # Amount in smallest currency unit
-    'currency': 'USD',
-    'paymentGateway': 'paypal',  # Select the gateway to use
-}
-
-try:
-    response = payment_processor.process_payment(payment_details)
-    print('Payment Successful:', response)
-except Exception as e:
-    print('Payment Failed:', str(e))
 ```
 
 ## Supported Gateways
 
-- PayPal
-- Razorpay
 - Stripe
-- PhonePe
-- Paytm
+- Razorpay
+- Braintree
+- Cashfree
+- Square
 - PayU
-- Easebuzz
 
 ## Configuration
 
@@ -201,26 +107,22 @@ You can configure the payment gateways in the `uniPay` instance as shown in the 
 
 ## Error Handling
 
-**uniPay** provides a consistent error handling mechanism. If a payment fails, it will throw a specific error related to the payment gateway. You can catch and handle these errors in your application.
-
-### Example Error Handling
+**uniPay** uses a custom `UniPayError` class for consistent error handling across different payment gateways. You can catch and handle these errors in your application.
 
 ```javascript
-paymentProcessor
-  .processPayment(paymentDetails)
-  .then((response) => {
-    console.log("Payment Successful:", response);
-  })
-  .catch((error) => {
-    if (error instanceof uniPay.PaymentError) {
-      console.error("Payment Error:", error.message);
-    } else if (error instanceof uniPay.GatewayError) {
-      console.error("Gateway Error:", error.message);
-    } else {
-      console.error("Unknown Error:", error.message);
-    }
-  });
+try {
+  // SDK operation
+} catch (error) {
+  if (error instanceof UniPayError) {
+    console.error('UniPay error:', error.message);
+    // Handle UniPay-specific error
+  } else {
+    console.error('Unexpected error:', error);
+    // Handle other errors
+  }
+}
 ```
+
 ## Edge Cases
 
 When integrating **uniPay**, you may encounter various edge cases that could affect payment processing. Below are common scenarios you should consider, along with suggested handling techniques and example responses.
@@ -236,9 +138,13 @@ When integrating **uniPay**, you may encounter various edge cases that could aff
 **Example Error Handling:**
 ```javascript
 try {
-    const response = await paymentProcessor.processPayment(paymentDetails);
+    const unipay = new UniPay();
+    unipay.registerPaymentGateway('stripe', {
+        apiKey: 'invalid_api_key'
+    });
+    await unipay.initiatePayment('stripe', paymentDetails);
 } catch (error) {
-    if (error instanceof uniPay.CredentialsError) {
+    if (error instanceof UniPayError) {
         console.error('Invalid Credentials:', error.message);
         // Handle invalid credentials, prompt user to check their input
     }
@@ -255,9 +161,9 @@ try {
 **Example Error Handling:**
 ```javascript
 try {
-    const response = await paymentProcessor.processPayment(paymentDetails);
+    const paymentResult = await unipay.initiatePayment('stripe', paymentDetails);
 } catch (error) {
-    if (error instanceof uniPay.InsufficientFundsError) {
+    if (error instanceof UniPayError && error.code === 'insufficient_funds') {
         console.error('Insufficient Funds:', error.message);
         // Inform the user about insufficient funds
     }
@@ -273,18 +179,20 @@ try {
 
 **Example Error Handling:**
 ```javascript
-async function processPaymentWithRetry(paymentDetails, retries = 3) {
+async function initiatePaymentWithRetry(gateway, paymentDetails, retries = 3) {
     while (retries > 0) {
         try {
-            const response = await paymentProcessor.processPayment(paymentDetails);
-            return response;
+            return await unipay.initiatePayment(gateway, paymentDetails);
         } catch (error) {
-            if (error instanceof uniPay.NetworkError) {
+            if (error instanceof UniPayError && error.code === 'network_error') {
                 console.error('Network Error:', error.message);
                 retries--;
                 if (retries === 0) {
                     // Inform the user about the network issue
+                    throw error;
                 }
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, 1000));
             } else {
                 throw error; // Rethrow other errors
             }
@@ -298,14 +206,14 @@ async function processPaymentWithRetry(paymentDetails, retries = 3) {
 **Description:** This error occurs when the specified currency in the payment details does not match the supported currencies of the selected payment gateway.
 
 **Response Handling:**
-- Validate the currency before processing the payment and return a specific error if there’s a mismatch.
+- Validate the currency before processing the payment and return a specific error if there's a mismatch.
 
 **Example Error Handling:**
 ```javascript
-const validCurrencies = ['USD', 'INR', 'EUR']; // Add your valid currencies here
+const validCurrencies = ['USD', 'EUR', 'GBP']; // Add your valid currencies here
 
 if (!validCurrencies.includes(paymentDetails.currency)) {
-    throw new uniPay.CurrencyMismatchError('Invalid currency specified.');
+    throw new UniPayError('Invalid currency specified.', 'currency_mismatch');
 }
 ```
 
@@ -318,21 +226,24 @@ if (!validCurrencies.includes(paymentDetails.currency)) {
 
 **Example Error Handling:**
 ```javascript
-const paymentWithTimeout = async (paymentDetails) => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
-
-    try {
-        const response = await paymentProcessor.processPayment(paymentDetails, { signal: controller.signal });
-        clearTimeout(timeout);
-        return response;
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.error('Payment Timeout: The payment processing took too long.');
-            // Handle timeout error
-        }
-    }
+const initiatePaymentWithTimeout = async (gateway, paymentDetails, timeout = 10000) => {
+    return Promise.race([
+        unipay.initiatePayment(gateway, paymentDetails),
+        new Promise((_, reject) => 
+            setTimeout(() => reject(new UniPayError('Payment processing timed out', 'timeout')), timeout)
+        )
+    ]);
 };
+
+try {
+    const result = await initiatePaymentWithTimeout('stripe', paymentDetails);
+    console.log('Payment processed:', result);
+} catch (error) {
+    if (error instanceof UniPayError && error.code === 'timeout') {
+        console.error('Payment Timeout:', error.message);
+        // Handle timeout error
+    }
+}
 ```
 
 ### 6. Concurrency Issues
@@ -345,7 +256,9 @@ const paymentWithTimeout = async (paymentDetails) => {
 **Example Error Handling:**
 ```javascript
 async function processPaymentsConcurrently(payments) {
-    const promises = payments.map(payment => paymentProcessor.processPayment(payment));
+    const promises = payments.map(payment => 
+        unipay.initiatePayment(payment.gateway, payment.details)
+    );
     
     try {
         const results = await Promise.all(promises);
@@ -364,84 +277,20 @@ uniPay/
 ├── js-sdk/                        # JavaScript SDK
 │   ├── src/
 │   │   ├── index.js               # Main entry point
-│   │   ├── config.js              # SDK configuration
 │   │   ├── gateways/              # Payment gateway integrations
-│   │   │   ├── paypal.js          # PayPal integration
-│   │   │   ├── razorpay.js        # Razorpay integration
 │   │   │   ├── stripe.js          # Stripe integration
-│   │   │   ├── phonepe.js         # PhonePe integration
-│   │   │   ├── paytm.js           # Paytm integration
-│   │   │   ├── payu.js            # PayU integration
-│   │   │   └── easebuzz.js        # Easebuzz integration
+│   │   │   ├── razorpay.js        # Razorpay integration
+│   │   │   ├── braintree.js       # Braintree integration
+│   │   │   ├── cashfree.js        # Cashfree integration
+│   │   │   ├── square.js          # Square integration
+│   │   │   └── payu.js            # PayU integration
 │   │   ├── utils.js               # Utility functions
 │   │   ├── errors.js              # Custom error handling
-│   │   ├── validators.js           # Input validation
-│   │   └── tests/                 # Testing scripts
-│   │       ├── test_gateways.js    # Tests for gateways
-│   │       ├── test_utils.js        # Tests for utility functions
-│   │       └── test_validators.js   # Tests for validators
-│   ├── examples/                  # Example usage
-│   │   ├── basic_example.js        # Basic usage example
-│   │   └── advanced_example.js      # Advanced usage example
-│   ├── package.json                # Package configuration for npm
-│   └── README.md                   # Documentation for JavaScript SDK
-├── php-sdk/                       # PHP SDK (Laravel)
-│   ├── src/
-│   │   ├── UniPayServiceProvider.php # Service provider
-│   │   ├── Facades/                # Facades for easier access
-│   │   │   └── UniPay.php          # Facade for UniPay
-│   │   ├── config/                 # Configuration files
-│   │   │   └── unipay.php          # Configuration settings
-│   │   ├── gateways/               # Payment gateway integrations
-│   │   │   ├── PayPal.php          # PayPal integration
-│   │   │   ├── Razorpay.php        # Razorpay integration
-│   │   │   ├── Stripe.php          # Stripe integration
-│   │   │   ├── PhonePe.php         # PhonePe integration
-│   │   │   ├── Paytm.php           # Paytm integration
-│   │   │   ├── PayU.php            # PayU integration
-│   │   │   └── Easebuzz.php        # Easebuzz integration
-│   │   ├── Exceptions/             # Custom exception classes
-│   │   │   ├── PaymentException.php  # General payment exception
-│   │   │   ├── GatewayException.php   # Gateway-specific exceptions
-│   │   │   └── ConfigurationException.php # Configuration exceptions
-│   │   ├── Tests/                  # Testing scripts
-│   │   │   ├── GatewayTest.php      # Tests for gateways
-│   │   │   ├── UnitTest.php         # Unit tests for core functionality
-│   │   │   └── IntegrationTest.php   # Integration tests
-│   │   └── examples/               # Example usage
-│   │       ├── basic_example.php     # Basic example
-│   │       └── advanced_example.php   # Advanced example
-│   ├── composer.json               # Composer package configuration
-│   └── README.md                   # Documentation for PHP SDK
-└── python-sdk/                    # Python SDK (Django)
-    ├── uniPay/
-    │   ├── __init__.py             # Package initialization
-    │   ├── settings.py             # SDK settings and configuration
-    │   ├── urls.py                 # URL routing for the SDK
-    │   ├── views.py                # Views for payment processing
-    │   ├── gateways/               # Payment gateway integrations
-    │   │   ├── __init__.py         # Gateway package initialization
-    │   │   ├── paypal.py           # PayPal integration
-    │   │   ├── razorpay.py         # Razorpay integration
-    │   │   ├── stripe.py           # Stripe integration
-    │   │   ├── phonepe.py          # PhonePe integration
-    │   │   ├── paytm.py            # Paytm integration
-    │   │   ├── payu.py             # PayU integration
-    │   │   └── easebuzz.py         # Easebuzz integration
-    │   ├── utils.py                # Utility functions
-    │   ├── errors.py               # Custom error handling
-    │   ├── validators.py           # Input validation logic
-    │   ├── tests/                  # Testing scripts
-    │   │   ├── __init__.py          # Test package initialization
-    │   │   ├── test_gateways.py      # Tests for payment gateways
-    │   │   ├── test_views.py         # Tests for views
-    │   │   └── test_utils.py         # Tests for utility functions
-    │   └── examples/               # Example usage
-    │       ├── basic_example.py      # Basic usage example
-    │       └── advanced_example.py    # Advanced usage example
-    ├── setup.py                     # Package setup for Python installation
-    ├── requirements.txt             # Dependencies for the SDK
-    └── README.md                    # Documentation for Python SDK
+│   │   └── validators.js          # Input validation
+│   ├── tests/                     # Testing scripts
+│   ├── index.cjs.js               # CommonJS entry point
+│   ├── package.json               # Package configuration for npm
+│   └── README.md                  # Documentation for JavaScript SDK
 ```
 
 ## Testing
@@ -469,5 +318,4 @@ For any inquiries or support, feel free to contact:
 **Email:** pushparajmehta002@gmail.com
 
 ---
-
 Thank you for choosing **uniPay**! We hope this SDK makes payment processing easier and more efficient for your applications.
