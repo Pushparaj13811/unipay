@@ -6,15 +6,18 @@ import { handleWebhook } from './utils.js';
 import { UniPayError } from './errors.js';
 
 class UniPay {
-  constructor(config) {
-    this.config = config;
-    this.gateway = null;
+  constructor() {
+    this.gateways = {};
+  }
+
+  registerPaymentGateway(gatewayName, credentials) {
+    this.gateways[gatewayName] = PaymentGateway.initialize(gatewayName, credentials);
   }
 
   async initiatePayment(gatewayName, paymentData) {
     try {
-      this.gateway = PaymentGateway.initialize(gatewayName, this.config);
-      const paymentResponse = await this.gateway.processPayment(paymentData);
+      const gateway = this.getGateway(gatewayName);
+      const paymentResponse = await gateway.processPayment(paymentData);
 
       if (!paymentResponse.id) throw new UniPayError('Payment ID is missing.');
 
@@ -24,13 +27,13 @@ class UniPay {
     }
   }
 
-  async capturePayment(gatewayName, paymentId) {
+  async checkStatus(gatewayName, paymentId) {
     try {
-      this.gateway = PaymentGateway.initialize(gatewayName, this.config);
-      const captureResponse = await this.gateway.capturePayment(paymentId);
-      return captureResponse;
+      const gateway = this.getGateway(gatewayName);
+      const status = await gateway.getPaymentStatus(paymentId);
+      return status;
     } catch (error) {
-      throw new UniPayError(`Payment Capture Failed: ${error.message}`);
+      throw new UniPayError(`Unable to get payment status: ${error.message}`);
     }
   }
 
@@ -51,16 +54,6 @@ class UniPay {
     }
   }
 
-  async getPaymentStatus(gatewayName, paymentId) {
-    try {
-      this.gateway = PaymentGateway.initialize(gatewayName, this.config);
-      const status = await this.gateway.getPaymentStatus(paymentId);
-      return status;
-    } catch (error) {
-      throw new UniPayError(`Unable to get payment status: ${error.message}`);
-    }
-  }
-
   async handleWebhook(gatewayName, requestData) {
     try {
       return handleWebhook(gatewayName, requestData);
@@ -68,7 +61,17 @@ class UniPay {
       throw new UniPayError(`Webhook Error: ${error.message}`);
     }
   }
+
+  getGateway(gatewayName) {
+    const gateway = this.gateways[gatewayName];
+    if (!gateway) {
+      throw new UniPayError(`Gateway ${gatewayName} not registered`);
+    }
+    return gateway;
+  }
 }
 
-module.exports = UniPay;
 export default UniPay;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = UniPay; 
+}
