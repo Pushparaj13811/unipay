@@ -49,13 +49,15 @@ pnpm add @pushparajunipay/unipay
 ### Initializing a Payment Gateway
 
 ```javascript
-import { PaymentGateway } from '@pushparajunipay/unipay';
+import UniPay from '@pushparajunipay/unipay';
 
-const stripeGateway = PaymentGateway.initialize('stripe', {
+const unipay = new UniPay();
+
+unipay.registerPaymentGateway('stripe', {
   apiKey: 'your_stripe_api_key'
 });
 
-const razorpayGateway = PaymentGateway.initialize('razorpay', {
+unipay.registerPaymentGateway('razorpay', {
   apiKey: 'your_razorpay_key_id',
   apiSecret: 'your_razorpay_key_secret'
 });
@@ -65,7 +67,7 @@ const razorpayGateway = PaymentGateway.initialize('razorpay', {
 
 ```javascript
 try {
-  const paymentResult = await stripeGateway.processPayment({
+  const paymentResult = await unipay.initiatePayment('stripe', {
     amount: 1000,
     currency: 'USD',
     description: 'Test payment',
@@ -76,13 +78,14 @@ try {
 } catch (error) {
   console.error('Payment processing error:', error.message);
 }
+
 ```
 
 ### Capturing a Payment
 
 ```javascript
 try {
-  const captureResult = await stripeGateway.capturePayment('payment_intent_id');
+  const captureResult = await unipay.capturePayment('stripe', 'payment_intent_id');
   console.log('Payment captured:', captureResult);
 } catch (error) {
   console.error('Payment capture error:', error.message);
@@ -93,7 +96,7 @@ try {
 
 ```javascript
 try {
-  const paymentStatus = await razorpayGateway.getPaymentStatus('payment_id');
+  const paymentStatus = await unipay.getPaymentStatus('razorpay', 'payment_id');
   console.log('Payment status:', paymentStatus);
 } catch (error) {
   console.error('Payment status error:', error.message);
@@ -105,7 +108,7 @@ try {
 ```javascript
 app.post('/webhook/stripe', async (req, res) => {
   try {
-    const event = await stripeGateway.handleWebhook({
+    const event = await unipay.handleWebhook('stripe', {
       body: req.body,
       signature: req.headers['stripe-signature']
     });
