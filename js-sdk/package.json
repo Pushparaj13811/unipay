@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "A unified payment gateway SDK for JavaScript.",
   "main": "src/index.js",
+  "type": "module",
   "directories": {
     "example": "examples"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -27,12 +29,20 @@
   },
   "homepage": "https://github.com/Pushparaj13811/unipay#readme",
   "dependencies": {
+    "axios": "^1.7.7",
     "braintree": "^3.25.0",
     "cashfree-sdk": "^0.1.1",
+    "joi": "^17.13.3",
     "paytm-sdk": "^0.0.2",
     "payu-sdk": "^1.1.1",
     "razorpay": "^2.9.4",
     "square": "^38.2.0",
     "stripe": "^17.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
+    "babel-jest": "^29.5.0",
+    "jest": "^29.5.0"
   }
 }
