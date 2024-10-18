@@ -1,0 +1,105 @@
+{
+    "version": "v1.0.0",
+    "entity": {
+        "type": "individual",
+        "role": "maintainer",
+        "name": "Pushparaj Mehta",
+        "email": "pushparajmehta002@gmail.com",
+        "phone": "",
+        "description": "I am a developer focused on simplifying payment gateway integrations. UniPay aims to alleviate the hassle and pain of integrating multiple payment gateways by providing a unified solution. My goal is to help developers streamline their projects and enhance their payment processes through open-source technologies.",
+        "webpageUrl": {
+            "url": "https://github.com/Pushparaj13811/unipay",
+            "wellKnown": ""
+        }
+    },
+
+
+    "projects": [
+        {
+            "guid": "unipay",
+            "name": "UniPay",
+            "description": "UniPay is an open-source SDK designed to unify the integration of multiple payment gateways into a single, streamlined solution. By using UniPay, developers can register their preferred payment gateways and manage payments without the complexity of handling multiple SDKs.",
+            "webpageUrl": {
+                "url": "https://github.com/Pushparaj13811/unipay"
+            },
+            "repositoryUrl": {
+                "url": "https://github.com/Pushparaj13811/unipay",
+                "wellKnown": "https://github.com/Pushparaj13811/unipay/blob/main/.well-known/funding-manifest-urls"
+            },
+            "licenses": [
+                "spdx:MIT"
+            ],
+            "tags": [
+                "payment-gateway",
+                "open-source",
+                "sdk",
+                "developer-tools"
+            ]
+        }
+    ],
+    "funding": {
+        "channels": [
+            {
+                "guid": "paypal",
+                "type": "payment-provider",
+                "address": "https://paypal.me/yourusername",
+                "description": "Support UniPay through PayPal. Your contributions will help maintain and develop the project further."
+            },
+            {
+                "guid": "patreon",
+                "type": "subscription",
+                "address": "https://www.patreon.com/yourusername",
+                "description": "Become a patron to support UniPay development with monthly contributions and gain access to exclusive content."
+            }
+        ],
+        "plans": [
+            {
+                "guid": "server-maintenance",
+                "status": "active",
+                "name": "Server Maintenance Support",
+                "description": "Funding for server costs to host documentation and resources for UniPay.",
+                "amount": 100,
+                "currency": "USD",
+                "frequency": "monthly",
+                "channels": [
+                    "paypal"
+                ]
+            },
+            {
+                "guid": "development-funding",
+                "status": "active",
+                "name": "Development Funding",
+                "description": "This plan helps cover costs for ongoing development efforts and enhancements to the UniPay SDK.",
+                "amount": 500,
+                "currency": "USD",
+                "frequency": "monthly",
+                "channels": [
+                    "patreon"
+                ]
+            },
+            {
+                "guid": "goodwill-support",
+                "status": "active",
+                "name": "Goodwill Contributions",
+                "description": "A one-time contribution to show your support for the project.",
+                "amount": 0,
+                "currency": "USD",
+                "frequency": "one-time",
+                "channels": [
+                    "paypal",
+                    "patreon"
+                ]
+            }
+        ],
+        "history": [
+            {
+                "year": 2024,
+                "income": 0,
+                "expenses": 0,
+                "taxes": 0,
+                "currency": "USD",
+                "description": "Project initiated. Currently in development phase."
+            }
+        ]
+    }
+}
