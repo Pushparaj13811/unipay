@@ -12,7 +12,10 @@
     "build": "babel src --out-dir dist",
     "test": "jest",
     "test:watch": "jest --watch"
-  },
+  }, 
+  "publishConfig": {
+    "access": "public"  
+  }
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Pushparaj13811/unipay.git"
