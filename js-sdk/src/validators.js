@@ -39,6 +39,20 @@ export function validateGatewayCredentials(gatewayName, credentials) {
     razorpay: Joi.object({
       apiKey: Joi.string().required(),
       apiSecret: Joi.string().required()
+    }),
+    cashfree: Joi.object({
+      apiKey: Joi.string().required(),
+      apiSecret: Joi.string().required(),
+      environment: Joi.string().valid('sandbox', 'production').default('sandbox')
+    }),
+    square: Joi.object({
+      accessToken: Joi.string().required(),
+      environment: Joi.string().valid('sandbox', 'production').default('sandbox')
+    }),
+    payu: Joi.object({
+      merchantKey: Joi.string().required(),
+      merchantSalt: Joi.string().required(),
+      environment: Joi.string().valid('sandbox', 'production').default('sandbox')
     })
     // Add more gateway credential schemas as needed
   };
