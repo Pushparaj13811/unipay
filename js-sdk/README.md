@@ -1,4 +1,4 @@
-# UniPay JavaScript SDK
+# @pushparajunipay/unipay
 
 UniPay is a unified payment gateway solution that simplifies integration with multiple payment providers. This JavaScript SDK provides a seamless way to integrate various payment gateways into your JavaScript applications.
 
@@ -19,18 +19,20 @@ UniPay is a unified payment gateway solution that simplifies integration with mu
 
 ## Installation
 
-**Note:** This package is not yet published to npm. Once published, you'll be able to install it using:
+To install the UniPay SDK, run the following command:
 
 ```bash
-npm install unipay-js-sdk
+npm i @pushparajunipay/unipay
 ```
 
-For now, you can clone the repository and install dependencies:
+You can also use Yarn or pnpm:
 
 ```bash
-git clone https://github.com/Pushparaj13811/unipay.git
-cd unipay/js-sdk
-npm install
+yarn add @pushparajunipay/unipay
+```
+
+```bash
+pnpm add @pushparajunipay/unipay
 ```
 
 ## Supported Payment Gateways
@@ -47,7 +49,7 @@ npm install
 ### Initializing a Payment Gateway
 
 ```javascript
-import { PaymentGateway } from 'unipay-js-sdk';
+import { PaymentGateway } from '@pushparajunipay/unipay';
 
 const stripeGateway = PaymentGateway.initialize('stripe', {
   apiKey: 'your_stripe_api_key'
@@ -139,17 +141,17 @@ try {
 To set up the project for development:
 
 1. Clone the repository:
-   ```
+   ```bash
    git clone https://github.com/Pushparaj13811/unipay.git
    ```
 
-2. Navigate to the js-sdk directory:
-   ```
+2. Navigate to the `js-sdk` directory:
+   ```bash
    cd unipay/js-sdk
    ```
 
 3. Install dependencies:
-   ```
+   ```bash
    npm install
    ```
 
@@ -169,12 +171,23 @@ npm run test:watch
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please follow these steps to contribute:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the repository.
+2. Create a feature branch:
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+3. Commit your changes:
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. Push to your branch:
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+5. Open a Pull Request.
 
-For more detailed information about the project structure and contribution guidelines, please refer to the main README file in the root directory of the project.
+For more details, refer to the main README file in the root directory of the project.
+
+---

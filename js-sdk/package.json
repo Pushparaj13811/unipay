@@ -1,5 +1,5 @@
 {
-  "name": "unipay",
+  "name": "@pushparajunipay/unipay",
   "version": "1.0.0",
   "description": "A unified payment gateway SDK for JavaScript.",
   "main": "index.cjs.js",
