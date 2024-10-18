@@ -1,7 +1,5 @@
-'use strict';
-
-const Joi = require('joi');
-const UniPayError = require('./errors');
+import Joi from 'joi';
+import { UniPayError } from './errors.js';
 
 const paymentSchema = Joi.object({
   amount: Joi.number().positive().required(),
@@ -19,21 +17,39 @@ const webhookSchema = Joi.object({
   // Extend schema with more fields as needed
 });
 
-function validatePaymentData(gateway, paymentData) {
+export function validatePaymentData(gatewayName, paymentData) {
   const { error } = paymentSchema.validate(paymentData);
   if (error) {
-    throw new UniPayError.PaymentError(`Invalid payment data for ${gateway}: ${error.message}`);
+    throw new UniPayError(`Invalid payment data for ${gatewayName}: ${error.message}`);
   }
 }
 
-function validateWebhook(gateway, webhookData) {
+export function validateWebhook(gatewayName, webhookData) {
   const { error } = webhookSchema.validate(webhookData);
   if (error) {
-    throw new UniPayError.WebhookError(`Invalid webhook data for ${gateway}: ${error.message}`);
+    throw new UniPayError(`Invalid webhook data for ${gatewayName}: ${error.message}`);
   }
 }
 
-module.exports = {
-  validatePaymentData,
-  validateWebhook
-};
+export function validateGatewayCredentials(gatewayName, credentials) {
+  const credentialSchemas = {
+    stripe: Joi.object({
+      apiKey: Joi.string().required()
+    }),
+    razorpay: Joi.object({
+      apiKey: Joi.string().required(),
+      apiSecret: Joi.string().required()
+    })
+    // Add more gateway credential schemas as needed
+  };
+
+  const schema = credentialSchemas[gatewayName.toLowerCase()];
+  if (!schema) {
+    throw new UniPayError(`Unsupported gateway: ${gatewayName}`);
+  }
+
+  const { error } = schema.validate(credentials);
+  if (error) {
+    throw new UniPayError(`Invalid credentials for ${gatewayName}: ${error.message}`);
+  }
+}
