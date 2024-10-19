@@ -3,7 +3,7 @@ name: Publish to npm
 on:
   push:
     branches:
-      - main # Set the branch you want to trigger the action (usually main or master)
+      - main
 
 jobs:
   publish:
@@ -16,24 +16,23 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "22" # Specify your Node.js version
+          node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: |
-          cd js-sdk  
+          cd js-sdk
           npm install
 
       - name: Build the package
         run: |
-          cd js-sdk  
+          cd js-sdk
           npm run build
 
       - name: Bump version and publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          cd js-sdk  
-          npm version patch  
-          npm publish --tag beta
-
+          cd js-sdk
+          npm version patch
+          npm publish
