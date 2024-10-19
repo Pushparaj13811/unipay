@@ -1,6 +1,6 @@
 {
   "name": "@pushparajunipay/unipay",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A unified payment gateway SDK for JavaScript.",
   "main": "index.cjs.js",
   "module": "src/index.js",
@@ -12,7 +12,7 @@
     "build": "babel src --out-dir dist",
     "test": "jest",
     "test:watch": "jest --watch"
-  }, 
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Pushparaj13811/unipay.git"
