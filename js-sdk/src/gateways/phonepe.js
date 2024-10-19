@@ -70,7 +70,7 @@ class PhonePayGateway {
           merchantId: this.merchantId,
           transactionId: refundData.transactionId,
           amount: refundData.amount,
-          merchandOrderId: refundData.transactionId,
+          merchandOrderId: refundData.merchandOrderId,
           reason: refundData.reason || "Refund requested by customer",
         },
       };
