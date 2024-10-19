@@ -34,6 +34,36 @@ class PhonePayGateway {
     }
   }
 
+  // This method is used to initiate the recurring payment
+
+  async initiateRecurringPayment(subscriptionData) {
+    try {
+      const options = {
+        method: "POST",
+        url: `${this.baseUrl}/pg/v1/recurring/pay`,
+        headers: {
+          Accept: "text/plain",
+          "Content-Type": "application/json",
+          "X-VERIFY": this.getXVerifyHeader(subscriptionData),
+        },
+        data: {
+          merchantId: this.merchantId,
+          subscriptionId: subscriptionData.subscriptionId,
+          amount: subscriptionData.amount,
+          currency: subscriptionData.currency,
+          paymentOptions: subscriptionData.paymentOptions,
+          callbackUrl: subscriptionData.returnUrl,
+        },
+      };
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      throw new UniPayError(
+        `PhonePe Recurring Payment Error: ${error.message}`
+      );
+    }
+  }
+
   // This method is used to get the payment status
   async getPaymentStatus(transactionId) {
     try {
@@ -43,10 +73,7 @@ class PhonePayGateway {
         headers: {
           Accept: "text/plain",
           "Content-Type": "application/json",
-        },
-        params: {
-          merchantId: this.merchantId,
-          transactionId,
+          "X-VERIFY": this.getXVerifyHeader({ transactionId }),
         },
       };
       const response = await axios.request(options);
@@ -63,8 +90,8 @@ class PhonePayGateway {
         method: "POST",
         url: `${this.baseUrl}/pg/v1/refund`,
         headers: {
-          Accept: "text/plain",
           "Content-Type": "application/json",
+          "X-VERIFY": this.getXVerifyHeader(refundData),
         },
         data: {
           merchantId: this.merchantId,
