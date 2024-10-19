@@ -31,6 +31,25 @@ class UniPay {
       throw new UniPayError(`Payment Initialization Failed: ${error.message}`);
     }
   }
+  // This method is used to initiate the recurring payment
+
+  async initiateRecurringPayment(gatewayName, subscriptionData) {
+    validatePaymentData(gatewayName, subscriptionData);
+    try {
+      const gateway = this.getGateway(gatewayName);
+      const paymentResponse =
+        await gateway.initiateRecurringPayment(subscriptionData);
+      if (!paymentResponse.id) {
+        throw new UniPayError("Payment ID is missing in the response");
+      }
+      return paymentResponse;
+    } catch (error) {
+      throw new UniPayError(
+        `Recurring Payment Initialization Failed: ${error.message}`
+      );
+    }
+  }
+
   // This method is used to check the payment status
   async checkStatus(gatewayName, paymentId) {
     try {
