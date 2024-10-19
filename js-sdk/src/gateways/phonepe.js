@@ -35,7 +35,6 @@ class PhonePayGateway {
   }
 
   // This method is used to initiate the recurring payment
-
   async initiateRecurringPayment(subscriptionData) {
     try {
       const options = {
@@ -105,6 +104,23 @@ class PhonePayGateway {
       return response.data;
     } catch (error) {
       throw new UniPayError(`PhonePe Refund Error: ${error.message}`);
+    }
+  }
+
+  // This method is used to get balance of the user's before transaction
+  async checkBalance() {
+    try {
+      const options = {
+        method: "GET",
+        url: `${this.baseUrl}/pg/v1/balance`,
+        headers: {
+          "X-VERIFY": this.getXVerifyHeader(),
+        },
+      };
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      throw new UniPayError(`PhonePe Balance Error: ${error.message}`);
     }
   }
 }
