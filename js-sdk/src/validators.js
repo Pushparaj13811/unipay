@@ -1,6 +1,7 @@
 import Joi from "joi";
 import { UniPayError } from "./errors.js";
 
+// Define the schema for payment data
 const paymentSchema = Joi.object({
   amount: Joi.number().positive().required(),
   currency: Joi.string().required(),
@@ -10,6 +11,7 @@ const paymentSchema = Joi.object({
   // Extend schema with more fields as needed
 });
 
+// Define the schema for webhook data
 const webhookSchema = Joi.object({
   eventType: Joi.string().required(),
   payload: Joi.object().required(),
@@ -17,7 +19,14 @@ const webhookSchema = Joi.object({
   // Extend schema with more fields as needed
 });
 
-export function validatePaymentData(gatewayName, paymentData) {
+const refundSchema = Joi.object({
+  transactionId: Joi.string().required(),
+  amount: Joi.number().positive().required(),
+  merchandtOrderId: Joi.string().required(),
+  reason: Joi.string().optional(),
+  // Extend schema with more fields as needed
+});
+function validatePaymentData(gatewayName, paymentData) {
   const { error } = paymentSchema.validate(paymentData);
   if (error) {
     throw new UniPayError(
@@ -26,7 +35,7 @@ export function validatePaymentData(gatewayName, paymentData) {
   }
 }
 
-export function validateWebhook(gatewayName, webhookData) {
+function validateWebhook(gatewayName, webhookData) {
   const { error } = webhookSchema.validate(webhookData);
   if (error) {
     throw new UniPayError(
@@ -35,7 +44,16 @@ export function validateWebhook(gatewayName, webhookData) {
   }
 }
 
-export function validateGatewayCredentials(gatewayName, credentials) {
+function validateRefundData(gatewayName, refundData) {
+  const { error } = refundSchema.validate(refundData);
+  if (error) {
+    throw new UniPayError(
+      `Invalid refund data for ${gatewayName}: ${error.message}`
+    );
+  }
+}
+
+function validateGatewayCredentials(gatewayName, credentials) {
   const credentialSchemas = {
     stripe: Joi.object({
       apiKey: Joi.string().required(),
@@ -64,6 +82,7 @@ export function validateGatewayCredentials(gatewayName, credentials) {
         .valid("sandbox", "production")
         .default("sandbox"),
     }),
+
     // Add more gateway credential schemas as needed
   };
 
@@ -79,3 +98,11 @@ export function validateGatewayCredentials(gatewayName, credentials) {
     );
   }
 }
+
+// Export all functions and schemas in export {} format
+export {
+  validatePaymentData,
+  validateWebhook,
+  validateRefundData,
+  validateGatewayCredentials,
+};
