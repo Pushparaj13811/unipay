@@ -16,7 +16,7 @@ class CashfreeGateway {
       const response = await axios.post(
         `${this.baseUrl}/orders`,
         {
-          order_id: `order_${Date.now()}`,
+          order_id: paymentData.tansationId,
           order_amount: paymentData.amount,
           order_currency: paymentData.currency,
           customer_details: {

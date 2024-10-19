@@ -1,18 +1,20 @@
-import { UniPayError } from './errors.js';
+import { UniPayError } from "./errors.js";
 
-export const handleWebhook = (gatewayName, requestData) => {
+const handleWebhook = (gatewayName, requestData) => {
   switch (gatewayName.toLowerCase()) {
     case "stripe":
       return verifyStripeWebhook(requestData);
     case "razorpay":
       return verifyRazorpayWebhook(requestData);
     default:
-      throw new UniPayError(`Webhook handling for ${gatewayName} not implemented`);
+      throw new UniPayError(
+        `Webhook handling for ${gatewayName} not implemented`
+      );
   }
 };
 
 // Stripe webhook verification
-const verifyStripeWebhook = (requestData) => {
+verifyStripeWebhook = (requestData) => {
   try {
     const stripe = new StripeGateway({ apiKey: process.env.STRIPE_API_KEY });
     const sigHeader = requestData.headers["stripe-signature"];
@@ -22,7 +24,9 @@ const verifyStripeWebhook = (requestData) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (error) {
-    throw new UniPayError(`Stripe Webhook Verification Error: ${error.message}`);
+    throw new UniPayError(
+      `Stripe Webhook Verification Error: ${error.message}`
+    );
   }
 };
 
@@ -42,17 +46,31 @@ const verifyRazorpayWebhook = (requestData) => {
       throw new UniPayError("Invalid Razorpay signature");
     }
   } catch (error) {
-    throw new UniPayError(`Razorpay Webhook Verification Error: ${error.message}`);
+    throw new UniPayError(
+      `Razorpay Webhook Verification Error: ${error.message}`
+    );
   }
 };
 
-export const createPaymentGateway = (gatewayName, credentials) => {
+const createPaymentGateway = (gatewayName, credentials) => {
   switch (gatewayName.toLowerCase()) {
     case "stripe":
       return new StripeGateway(credentials);
     case "razorpay":
       return new RazorpayGateway(credentials);
+    case "braintree":
+      return new BraintreeGateway(credentials);
+    case "cashfree":
+      return new CashfreeGateway(credentials);
+    case "square":
+      return new SquareGateway(credentials);
+    case "payu":
+      return new PayUGateway(credentials);
+    case "phonepe":
+      return new PhonePeGateway(credentials);
     default:
       throw new UniPayError(`Payment gateway ${gatewayName} not supported`);
   }
 };
+
+export { handleWebhook, createPaymentGateway };

@@ -1,7 +1,5 @@
 const { createRequire } = require("module");
 const require = createRequire(import.meta.url);
-
-import { PaymentGateway } from "./gateways/index.js";
 import { handleWebhook, createPaymentGateway } from "./utils.js";
 import {
   validatePaymentData,
@@ -19,6 +17,7 @@ class UniPay {
     this.gateways[gatewayName] = createPaymentGateway(gatewayName, credentials);
   }
 
+  // This method is used to initiate the payment
   async initiatePayment(gatewayName, paymentData) {
     validatePaymentData(gatewayName, paymentData);
     try {
@@ -32,7 +31,26 @@ class UniPay {
       throw new UniPayError(`Payment Initialization Failed: ${error.message}`);
     }
   }
+  // This method is used to initiate the recurring payment
 
+  async initiateRecurringPayment(gatewayName, subscriptionData) {
+    validatePaymentData(gatewayName, subscriptionData);
+    try {
+      const gateway = this.getGateway(gatewayName);
+      const paymentResponse =
+        await gateway.initiateRecurringPayment(subscriptionData);
+      if (!paymentResponse.id) {
+        throw new UniPayError("Payment ID is missing in the response");
+      }
+      return paymentResponse;
+    } catch (error) {
+      throw new UniPayError(
+        `Recurring Payment Initialization Failed: ${error.message}`
+      );
+    }
+  }
+
+  // This method is used to check the payment status
   async checkStatus(gatewayName, paymentId) {
     try {
       const gateway = this.getGateway(gatewayName);
@@ -43,6 +61,7 @@ class UniPay {
     }
   }
 
+  // This method is used to refund the payment
   async retryPayment(gatewayName, paymentData, maxRetries = 3) {
     let retryCount = 0;
     let paymentResponse = null;
@@ -54,12 +73,28 @@ class UniPay {
       } catch (error) {
         retryCount++;
         if (retryCount >= maxRetries) {
-          throw new UniPayError(`Payment failed after ${maxRetries} retries`);
+          throw new UniPayError(
+            `Payment failed after ${maxRetries} retries with error: ${error.message}`
+          );
         }
       }
     }
   }
 
+  async refundPayment(gatewayName, refundData) {
+    try {
+      validateRefundData(gatewayName, refundData);
+      const gateway = this.getGateway(gatewayName);
+      const refundResponse = await gateway.processRefund(refundData);
+      if (!refundResponse.refundId) {
+        throw new UniPayError("Refund ID is missing in the response");
+      }
+      return refundResponse;
+    } catch (error) {
+      throw new UniPayError(`Refund Processing Failed: ${error.message}`);
+    }
+  }
+  // This method is used to handle the webhook
   async handleWebhook(gatewayName, requestData) {
     validateWebhook(gatewayName, requestData);
     try {
