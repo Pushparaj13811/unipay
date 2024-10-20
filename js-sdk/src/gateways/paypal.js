@@ -87,11 +87,11 @@ class PaypalGateway {
 
   // This method is used to capture the payment
 
-  async capturePayment(orderId) {
+  async getPaymentStatus(transactionId) {
     const accessToken = await this.generateAccessToken();
     try {
       const options = {
-        url: `${this.baseUrl}/v2/checkout/orders/${orderId}/capture`,
+        url: `${this.baseUrl}/v2/checkout/orders/${transactionId}/capture`,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,6 +104,189 @@ class PaypalGateway {
       return response.data;
     } catch (error) {
       throw new UniPayError(`Paypal Capture Payment Error: ${error.message}`);
+    }
+  }
+
+  // This method is used to refund the payment
+  async processRefund(refundData) {
+    try {
+      const accessToken = await this.generateAccessToken();
+      const options = {
+        method: "POST",
+        url: `${this.baseUrl}/v2/payments/captures/${refundData.transactionId}/refund`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          amount: {
+            value: refundData.amount,
+            currency_code: refundData.currency,
+          },
+        },
+      };
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      throw new UniPayError(`Paypal Refund Error: ${error.message}`);
+    }
+  }
+
+  // This method is used to create subscription
+
+  async createSubscription(subscriptionData) {
+    try {
+      const accessToken = await this.generateAccessToken();
+      const options = {
+        method: "POST",
+        url: `${this.baseUrl}/v1/billing/subscriptions`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          plan_id: subscriptionData.planId,
+          start_time: subscriptionData.startTime,
+          quantity: subscriptionData.quantity,
+          subscriber: {
+            name: {
+              given_name: subscriptionData.givenName,
+              surname: subscriptionData.surname,
+            },
+            email_address: subscriptionData.email,
+          },
+          application_context: {
+            brand_name: subscriptionData.brandName,
+            return_url: subscriptionData.returnUrl,
+            cancel_url: subscriptionData.cancelUrl,
+          },
+        },
+      };
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      throw new UniPayError(
+        `Paypal Subscription Creation Error: ${error.message}`
+      );
+    }
+  }
+  // This method is used to create billing agreement
+
+  async createBillingAgreement(agreementData) {
+    try {
+      const accessToken = await this.generateAccessToken();
+      const options = {
+        method: "POST",
+        url: `${this.baseUrl}/v1/payments/billing-agreements`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          plan: {
+            id: agreementData.planId,
+          },
+          payer: {
+            payment_method: "PAYPAL",
+          },
+          shipping_address: {
+            line1: agreementData.addressLine1,
+            city: agreementData.city,
+            state: agreementData.state,
+            postal_code: agreementData.postalCode,
+            country_code: agreementData.countryCode,
+          },
+          application_context: {
+            brand_name: agreementData.brandName,
+            return_url: agreementData.returnUrl,
+            cancel_url: agreementData.cancelUrl,
+          },
+        },
+      };
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      throw new UniPayError(`Paypal Billing Agreement Error: ${error.message}`);
+    }
+  }
+
+  // This method is used to execute billing agreement
+  async vaultPaymentMethod(paymentMethodData) {
+    try {
+      const accessToken = await this.generateAccessToken();
+      const options = {
+        method: "POST",
+        url: `${this.baseUrl}/v1/vault/credit-cards`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          payer_id: paymentMethodData.payerId,
+          number: paymentMethodData.cardNumber,
+          type: paymentMethodData.cardType,
+          expire_month: paymentMethodData.expiryMonth,
+          expire_year: paymentMethodData.expiryYear,
+          cvv2: paymentMethodData.cvv,
+          first_name: paymentMethodData.firstName,
+          last_name: paymentMethodData.lastName,
+          billing_address: {
+            line1: paymentMethodData.addressLine1,
+            city: paymentMethodData.city,
+            state: paymentMethodData.state,
+            postal_code: paymentMethodData.postalCode,
+            country_code: paymentMethodData.countryCode,
+          },
+        },
+      };
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      throw new UniPayError(
+        `Paypal Vault Payment Method Error: ${error.message}`
+      );
+    }
+  }
+  // This method is used to create invoice
+
+  async createInvoice(invoiceData) {
+    try {
+      const accessToken = await this.generateAccessToken();
+      const options = {
+        method: "POST",
+        url: `${this.baseUrl}/v2/invoicing/invoices`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
+          detail: {
+            currency_code: invoiceData.currency,
+            note: invoiceData.note,
+            terms_and_conditions: invoiceData.terms,
+          },
+          primary_recipients: [
+            {
+              billing_info: {
+                email_address: invoiceData.email,
+              },
+            },
+          ],
+          items: invoiceData.items.map((item) => ({
+            name: item.name,
+            quantity: item.quantity,
+            unit_amount: {
+              currency_code: invoiceData.currency,
+              value: item.unitAmount,
+            },
+          })),
+          due_date: invoiceData.dueDate,
+        },
+      };
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      throw new UniPayError(`Paypal Invoice Creation Error: ${error.message}`);
     }
   }
 }
