@@ -290,3 +290,5 @@ class PaypalGateway {
     }
   }
 }
+
+export default PaypalGateway;
