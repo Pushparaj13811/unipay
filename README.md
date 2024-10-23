@@ -32,7 +32,7 @@
 
 ## Installation
 
-**Note:** This package is not yet published to npm. Once published, you'll be able to install it using the following methods:
+<!-- **Note:** This package is not yet published to npm. Once published, you'll be able to install it using the following methods: -->
 
 ### JavaScript (Node.js, Bun, Deno, Hono)
 
@@ -40,15 +40,15 @@ To install **uniPay** in a JavaScript project, you will be able to use npm, yarn
 
 - ### Using npm
 ```
-npm install unipay-js-sdk
+npm i @pushparajunipay/unipay
 ```
 - ### Using yarn
 ```
-yarn add unipay-js-sdk
+yarn i @pushparajunipay/unipay
 ```
 - ### Using pnpm
 ```
-pnpm install unipay-js-sdk
+pnpm i @pushparajunipay/unipay
 ```
 
 For now, you can clone the repository and install dependencies:
