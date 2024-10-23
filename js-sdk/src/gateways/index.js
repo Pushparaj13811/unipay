@@ -4,6 +4,8 @@ import BraintreeGateway from "./braintree.js";
 import CashfreeGateway from "./cashfree.js";
 import SquareGateway from "./square.js";
 import PayUGateway from "./payu.js";
+import PaypalGateway from "./paypal.js";
+import PhonePayGateway from "./phonepe.js";
 import { UniPayError } from "../errors.js";
 
 export const PaymentGateway = {
@@ -21,6 +23,10 @@ export const PaymentGateway = {
         return new SquareGateway(credentials);
       case "payu":
         return new PayUGateway(credentials);
+      case "paypal":
+        return new PaypalGateway(credentials);
+      case "phonepe":
+        return new PhonePayGateway(credentials);
       default:
         throw new UniPayError(`Unsupported gateway: ${gatewayName}`);
     }
