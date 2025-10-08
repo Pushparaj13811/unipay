@@ -1,0 +1,14 @@
+{
+  "name": "@unipay/core",
+  "version": "0.1.0",
+  "description": "Core contracts and types for UniPay payment orchestration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0"
+}
