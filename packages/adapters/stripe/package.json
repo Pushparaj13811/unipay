@@ -1,0 +1,20 @@
+{
+  "name": "@unipay/adapter-stripe",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "@unipay/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@unipay/core": "^0.1.0"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0"
+}
