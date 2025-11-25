@@ -1,0 +1,25 @@
+{
+  "name": "@unipay/adapter-razorpay",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@unipay/core": "workspace:*",
+    "razorpay": "^2.9.0"
+  },
+  "peerDependencies": {
+    "@unipay/core": "^0.1.0"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0",
+  "devDependencies": {
+    "@types/node": "^25.0.3"
+  }
+}
