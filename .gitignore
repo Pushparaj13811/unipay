@@ -110,3 +110,8 @@ venv.bak/
 # Project specific (add any custom rules here)
 config.json
 secrets.yaml
+
+# Internal analysis documents
+ADAPTER_IMPLEMENTATION_STATUS.md
+SDK_ANALYSIS_REPORT.md
+TESTING_STRATEGY.md
