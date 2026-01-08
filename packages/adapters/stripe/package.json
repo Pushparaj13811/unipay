@@ -1,6 +1,22 @@
 {
   "name": "@unipay/adapter-stripe",
   "version": "0.1.0",
+  "description": "Stripe payment gateway adapter for UniPay - Supporting Checkout Sessions, Payment Intents, refunds, and webhooks",
+  "keywords": [
+    "stripe",
+    "stripe-payment",
+    "stripe-adapter",
+    "payment-gateway",
+    "unipay",
+    "payment-processing",
+    "checkout",
+    "payment-intent",
+    "stripe-checkout",
+    "stripe-webhook",
+    "refunds",
+    "payment-sdk",
+    "typescript"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -17,7 +33,20 @@
   "peerDependencies": {
     "@unipay/core": "^0.1.0"
   },
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/unipay.git",
+    "directory": "packages/adapters/stripe"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/unipay/issues"
+  },
+  "homepage": "https://github.com/yourusername/unipay#readme",
+  "author": "UniPay Contributors",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "packageManager": "pnpm@10.27.0",
   "devDependencies": {
     "@types/node": "^25.0.3"
