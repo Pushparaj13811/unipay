@@ -1,5 +1,5 @@
 {
-  "name": "@unipay/adapter-stripe",
+  "name": "@unipay/adapter-razorpay",
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@unipay/core": "workspace:*",
-    "stripe": "^14.0.0"
+    "razorpay": "^2.9.0"
   },
   "peerDependencies": {
     "@unipay/core": "^0.1.0"
