@@ -1,6 +1,6 @@
 {
   "name": "@uniipay/adapter-stripe",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stripe payment gateway adapter for UniPay - Supporting Checkout Sessions, Payment Intents, refunds, and webhooks",
   "keywords": [
     "stripe",
@@ -20,7 +20,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",

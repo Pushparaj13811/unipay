@@ -1,6 +1,6 @@
 {
   "name": "@uniipay/orchestrator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Intelligent payment gateway orchestrator with automatic failover, routing strategies, and multi-provider support",
   "keywords": [
     "payment-orchestrator",
@@ -20,7 +20,7 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist"
