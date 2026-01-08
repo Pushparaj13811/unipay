@@ -3,7 +3,7 @@ import {
   CreatePaymentInput,
   PaymentGatewayAdapter,
   AmountRoute
-} from '@unipay/core'
+} from '@uniipay/core'
 
 /**
  * Amount-based resolution strategy

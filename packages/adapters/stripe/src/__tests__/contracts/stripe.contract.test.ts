@@ -18,7 +18,7 @@ import {
   RefundStatus,
   WebhookEventType,
   CheckoutMode,
-} from '@unipay/core'
+} from '@uniipay/core'
 import {
   CHECKOUT_SESSION_OPEN,
   CHECKOUT_SESSION_COMPLETE,

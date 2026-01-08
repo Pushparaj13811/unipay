@@ -12,7 +12,7 @@ import {
   RefundCreationError,
   MissingRequiredFieldError,
   WebhookParsingError,
-} from '@unipay/core'
+} from '@uniipay/core'
 import { createMockRazorpay, MockRazorpay } from './__mocks__/razorpay.mock'
 import {
   createMockOrder,

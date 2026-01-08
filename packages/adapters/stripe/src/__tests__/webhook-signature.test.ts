@@ -14,7 +14,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createHmac } from 'crypto'
 import { StripeAdapter } from '../stripe.adapter'
-import { PaymentProvider } from '@unipay/core'
+import { PaymentProvider } from '@uniipay/core'
 
 describe('Stripe Webhook Signature Tests', () => {
   let adapter: StripeAdapter

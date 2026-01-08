@@ -1,5 +1,5 @@
 {
-  "name": "@unipay/orchestrator",
+  "name": "@uniipay/orchestrator",
   "version": "0.1.0",
   "description": "Intelligent payment gateway orchestrator with automatic failover, routing strategies, and multi-provider support",
   "keywords": [
@@ -26,7 +26,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@unipay/core": "workspace:*"
+    "@uniipay/core": "workspace:*"
   },
   "repository": {
     "type": "git",

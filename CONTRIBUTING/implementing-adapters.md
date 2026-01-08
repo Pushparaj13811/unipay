@@ -64,7 +64,7 @@ import {
   RefundStatus,
   WebhookEventType,
   createUnipayId
-} from '@unipay/core'
+} from '@uniipay/core'
 
 export class MyGatewayAdapter implements PaymentGatewayAdapter {
   readonly provider = PaymentProvider.MY_GATEWAY
@@ -136,10 +136,10 @@ export interface MyGatewayConfig {
 
 ### Step 2: Register Provider (if new)
 
-If adding a new gateway not in the `PaymentProvider` enum, you'll need to extend it in `@unipay/core`:
+If adding a new gateway not in the `PaymentProvider` enum, you'll need to extend it in `@uniipay/core`:
 
 ```typescript
-// @unipay/core/src/enums.ts
+// @uniipay/core/src/enums.ts
 export enum PaymentProvider {
   STRIPE = 'stripe',
   RAZORPAY = 'razorpay',
@@ -591,7 +591,7 @@ import {
   RefundExceedsPaymentError,
   WebhookParsingError,
   UniPayError
-} from '@unipay/core'
+} from '@uniipay/core'
 import crypto from 'crypto'
 
 export interface AcmePayConfig {
@@ -1073,7 +1073,7 @@ describe('AcmePayAdapter', () => {
 
 ## Publishing Your Adapter
 
-1. Create a package: `@unipay/adapter-mygateway`
+1. Create a package: `@uniipay/adapter-mygateway`
 2. Export the adapter class and config type
 3. Document supported features and limitations
 4. Publish to npm

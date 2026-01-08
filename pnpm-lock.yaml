@@ -20,7 +20,7 @@ importers:
 
   packages/adapters/razorpay:
     dependencies:
-      '@unipay/core':
+      '@uniipay/core':
         specifier: workspace:*
         version: link:../../core
       razorpay:
@@ -33,7 +33,7 @@ importers:
 
   packages/adapters/stripe:
     dependencies:
-      '@unipay/core':
+      '@uniipay/core':
         specifier: workspace:*
         version: link:../../core
       stripe:
@@ -48,7 +48,7 @@ importers:
 
   packages/orchestrator:
     dependencies:
-      '@unipay/core':
+      '@uniipay/core':
         specifier: workspace:*
         version: link:../core
 

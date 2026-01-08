@@ -12,7 +12,7 @@ import {
   PaymentNotFoundError,
   RefundCreationError,
   WebhookParsingError,
-} from '@unipay/core'
+} from '@uniipay/core'
 import { createMockStripe, MockStripe } from './__mocks__/stripe.mock'
 import {
   createMockCheckoutSession,

@@ -26,7 +26,7 @@ import {
   RefundCreationError,
   RefundNotFoundError,
   WebhookParsingError
-} from '@unipay/core'
+} from '@uniipay/core'
 
 /**
  * Configuration options for StripeAdapter

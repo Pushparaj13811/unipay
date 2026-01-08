@@ -31,7 +31,7 @@ npm login
 npm whoami
 ```
 
-### 2. NPM Organization (for @unipay scope)
+### 2. NPM Organization (for @uniipay scope)
 
 ```bash
 # Create organization on NPM
@@ -39,7 +39,7 @@ npm whoami
 
 # Or use existing organization
 # Organization name: unipay
-# All packages use: @unipay/* scope
+# All packages use: @uniipay/* scope
 ```
 
 ### 3. Two-Factor Authentication (Recommended)
@@ -74,18 +74,18 @@ UniPay is a monorepo with the following publishable packages:
 ```
 unipay/
 ├── packages/
-│   ├── core/                    → @unipay/core
-│   ├── orchestrator/            → @unipay/orchestrator
+│   ├── core/                    → @uniipay/core
+│   ├── orchestrator/            → @uniipay/orchestrator
 │   └── adapters/
-│       ├── stripe/              → @unipay/adapter-stripe
-│       └── razorpay/            → @unipay/adapter-razorpay
+│       ├── stripe/              → @uniipay/adapter-stripe
+│       └── razorpay/            → @uniipay/adapter-razorpay
 ```
 
 **Publication Order** (dependencies first):
-1. `@unipay/core` (base package)
-2. `@unipay/orchestrator` (depends on core)
-3. `@unipay/adapter-stripe` (depends on core)
-4. `@unipay/adapter-razorpay` (depends on core)
+1. `@uniipay/core` (base package)
+2. `@uniipay/orchestrator` (depends on core)
+3. `@uniipay/adapter-stripe` (depends on core)
+4. `@uniipay/adapter-razorpay` (depends on core)
 
 ---
 
@@ -162,7 +162,7 @@ npm pack --dry-run
 npm publish --access public
 
 # Verify publication
-npm view @unipay/core
+npm view @uniipay/core
 ```
 
 #### Step 2: Publish Orchestrator
@@ -171,14 +171,14 @@ npm view @unipay/core
 cd ../orchestrator
 
 # Update dependency to published version
-# Edit package.json: "@unipay/core": "^0.1.0"
+# Edit package.json: "@uniipay/core": "^0.1.0"
 
 # Publish
 npm pack --dry-run
 npm publish --access public
 
 # Verify
-npm view @unipay/orchestrator
+npm view @uniipay/orchestrator
 ```
 
 #### Step 3: Publish Stripe Adapter
@@ -187,14 +187,14 @@ npm view @unipay/orchestrator
 cd ../adapters/stripe
 
 # Update dependency
-# Edit package.json: "@unipay/core": "^0.1.0"
+# Edit package.json: "@uniipay/core": "^0.1.0"
 
 # Publish
 npm pack --dry-run
 npm publish --access public
 
 # Verify
-npm view @unipay/adapter-stripe
+npm view @uniipay/adapter-stripe
 ```
 
 #### Step 4: Publish Razorpay Adapter
@@ -203,14 +203,14 @@ npm view @unipay/adapter-stripe
 cd ../razorpay
 
 # Update dependency
-# Edit package.json: "@unipay/core": "^0.1.0"
+# Edit package.json: "@uniipay/core": "^0.1.0"
 
 # Publish
 npm pack --dry-run
 npm publish --access public
 
 # Verify
-npm view @unipay/adapter-razorpay
+npm view @uniipay/adapter-razorpay
 ```
 
 ---
@@ -224,7 +224,7 @@ npm view @unipay/adapter-razorpay
 # Replace workspace:* with actual versions in package.json files
 
 # For each package, update:
-# "@unipay/core": "workspace:*" → "@unipay/core": "^0.1.0"
+# "@uniipay/core": "workspace:*" → "@uniipay/core": "^0.1.0"
 ```
 
 #### Step 2: Publish All at Once
@@ -234,10 +234,10 @@ npm view @unipay/adapter-razorpay
 pnpm -r publish --access public
 
 # Or publish individually with pnpm
-pnpm --filter @unipay/core publish --access public
-pnpm --filter @unipay/orchestrator publish --access public
-pnpm --filter @unipay/adapter-stripe publish --access public
-pnpm --filter @unipay/adapter-razorpay publish --access public
+pnpm --filter @uniipay/core publish --access public
+pnpm --filter @uniipay/orchestrator publish --access public
+pnpm --filter @uniipay/adapter-stripe publish --access public
+pnpm --filter @uniipay/adapter-razorpay publish --access public
 ```
 
 ---
@@ -295,16 +295,16 @@ pnpm -r publish --access public
 
 ```bash
 # Check package page
-open https://www.npmjs.com/package/@unipay/core
-open https://www.npmjs.com/package/@unipay/orchestrator
-open https://www.npmjs.com/package/@unipay/adapter-stripe
-open https://www.npmjs.com/package/@unipay/adapter-razorpay
+open https://www.npmjs.com/package/@uniipay/core
+open https://www.npmjs.com/package/@uniipay/orchestrator
+open https://www.npmjs.com/package/@uniipay/adapter-stripe
+open https://www.npmjs.com/package/@uniipay/adapter-razorpay
 
 # Verify installation
-npm view @unipay/core
-npm view @unipay/orchestrator
-npm view @unipay/adapter-stripe
-npm view @unipay/adapter-razorpay
+npm view @uniipay/core
+npm view @uniipay/orchestrator
+npm view @uniipay/adapter-stripe
+npm view @uniipay/adapter-razorpay
 ```
 
 ### 2. Test Installation
@@ -315,19 +315,19 @@ mkdir test-unipay && cd test-unipay
 npm init -y
 
 # Install packages
-npm install @unipay/core @unipay/orchestrator @unipay/adapter-stripe
+npm install @uniipay/core @uniipay/orchestrator @uniipay/adapter-stripe
 
 # Verify imports
-node -e "console.log(require('@unipay/core'))"
+node -e "console.log(require('@uniipay/core'))"
 ```
 
 ### 3. Check Package Metadata
 
 ```bash
 # Verify keywords, description, repository links
-npm view @unipay/core keywords
-npm view @unipay/core description
-npm view @unipay/core repository
+npm view @uniipay/core keywords
+npm view @uniipay/core description
+npm view @uniipay/core repository
 ```
 
 ---
@@ -413,7 +413,7 @@ npm login
 npm version patch
 
 # Or unpublish (within 72 hours only)
-npm unpublish @unipay/core@0.1.0
+npm unpublish @uniipay/core@0.1.0
 ```
 
 ### Issue: "Invalid package.json"

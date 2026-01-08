@@ -1,5 +1,5 @@
 {
-  "name": "@unipay/adapter-razorpay",
+  "name": "@uniipay/adapter-razorpay",
   "version": "0.1.0",
   "description": "Razorpay payment gateway adapter for UniPay - Supporting Orders, Payment Links, UPI, cards, and webhooks for Indian payments",
   "keywords": [
@@ -28,11 +28,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@unipay/core": "workspace:*",
+    "@uniipay/core": "workspace:*",
     "razorpay": "^2.9.0"
   },
   "peerDependencies": {
-    "@unipay/core": "^0.1.0"
+    "@uniipay/core": "^0.1.0"
   },
   "repository": {
     "type": "git",

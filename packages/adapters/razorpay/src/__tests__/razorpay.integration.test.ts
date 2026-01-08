@@ -21,7 +21,7 @@ import {
   PaymentStatus,
   MissingRequiredFieldError,
   CheckoutMode,
-} from '@unipay/core'
+} from '@uniipay/core'
 
 // Skip all tests if no API key is provided
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID

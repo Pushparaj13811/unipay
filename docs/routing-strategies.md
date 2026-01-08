@@ -430,7 +430,7 @@ import {
   NoProviderAvailableError,
   ProviderNotFoundError,
   UnsupportedCurrencyError
-} from '@unipay/core'
+} from '@uniipay/core'
 
 try {
   await client.createPayment({ ... })

@@ -77,10 +77,10 @@ Release Published → Publish Workflow → Test → Build → Publish to NPM
 - **publish**: Publishes all packages to NPM
   - Run tests
   - Build packages
-  - Publish @unipay/core
-  - Publish @unipay/orchestrator
-  - Publish @unipay/adapter-stripe
-  - Publish @unipay/adapter-razorpay
+  - Publish @uniipay/core
+  - Publish @uniipay/orchestrator
+  - Publish @uniipay/adapter-stripe
+  - Publish @uniipay/adapter-razorpay
   - Create publication summary
 
 ---
@@ -90,7 +90,7 @@ Release Published → Publish Workflow → Test → Build → Publish to NPM
 Before setting up CI/CD, ensure you have:
 
 1. **GitHub Repository**: UniPay repository on GitHub
-2. **NPM Account**: Account with access to @unipay organization
+2. **NPM Account**: Account with access to @uniipay organization
 3. **NPM Token**: Automation token with publish permissions
 4. **Test API Keys**: Stripe and Razorpay test credentials (for integration tests)
 
@@ -274,19 +274,19 @@ Automatically publishes all UniPay packages to NPM when a GitHub release is publ
 3. **Install**: Runs `pnpm install --frozen-lockfile`
 4. **Test**: Runs `pnpm test` (ensures all tests pass)
 5. **Build**: Runs `pnpm build` (creates dist/ folders)
-6. **Publish Core**: Publishes `@unipay/core` to NPM
-7. **Publish Orchestrator**: Publishes `@unipay/orchestrator` to NPM
-8. **Publish Stripe**: Publishes `@unipay/adapter-stripe` to NPM
-9. **Publish Razorpay**: Publishes `@unipay/adapter-razorpay` to NPM
+6. **Publish Core**: Publishes `@uniipay/core` to NPM
+7. **Publish Orchestrator**: Publishes `@uniipay/orchestrator` to NPM
+8. **Publish Stripe**: Publishes `@uniipay/adapter-stripe` to NPM
+9. **Publish Razorpay**: Publishes `@uniipay/adapter-razorpay` to NPM
 10. **Summary**: Creates publication summary in GitHub
 
 ### Publication Order
 
 Packages are published in dependency order:
-1. `@unipay/core` (no dependencies)
-2. `@unipay/orchestrator` (depends on core)
-3. `@unipay/adapter-stripe` (depends on core)
-4. `@unipay/adapter-razorpay` (depends on core)
+1. `@uniipay/core` (no dependencies)
+2. `@uniipay/orchestrator` (depends on core)
+3. `@uniipay/adapter-stripe` (depends on core)
+4. `@uniipay/adapter-razorpay` (depends on core)
 
 ### NPM Provenance
 
@@ -302,10 +302,10 @@ All packages are published with `--provenance` flag:
 # Visit: https://github.com/Pushparaj13811/unipay/actions/workflows/publish.yml
 
 # Check published packages
-npm view @unipay/core
-npm view @unipay/orchestrator
-npm view @unipay/adapter-stripe
-npm view @unipay/adapter-razorpay
+npm view @uniipay/core
+npm view @uniipay/orchestrator
+npm view @uniipay/adapter-stripe
+npm view @uniipay/adapter-razorpay
 ```
 
 ---
@@ -411,16 +411,16 @@ See [CHANGELOG.md](./CHANGELOG.md) for full details."
 
 ```bash
 # Check packages on NPM
-open https://www.npmjs.com/package/@unipay/core
-open https://www.npmjs.com/package/@unipay/orchestrator
-open https://www.npmjs.com/package/@unipay/adapter-stripe
-open https://www.npmjs.com/package/@unipay/adapter-razorpay
+open https://www.npmjs.com/package/@uniipay/core
+open https://www.npmjs.com/package/@uniipay/orchestrator
+open https://www.npmjs.com/package/@uniipay/adapter-stripe
+open https://www.npmjs.com/package/@uniipay/adapter-razorpay
 
 # Test installation
 mkdir test-unipay && cd test-unipay
 npm init -y
-npm install @unipay/core@0.2.0
-node -e "console.log(require('@unipay/core'))"
+npm install @uniipay/core@0.2.0
+node -e "console.log(require('@uniipay/core'))"
 ```
 
 ### Pre-release Versions

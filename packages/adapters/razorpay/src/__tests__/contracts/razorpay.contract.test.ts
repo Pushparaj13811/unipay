@@ -18,7 +18,7 @@ import {
   RefundStatus,
   WebhookEventType,
   CheckoutMode,
-} from '@unipay/core'
+} from '@uniipay/core'
 import {
   ORDER_CREATED,
   ORDER_ATTEMPTED,

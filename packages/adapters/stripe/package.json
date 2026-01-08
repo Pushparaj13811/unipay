@@ -1,5 +1,5 @@
 {
-  "name": "@unipay/adapter-stripe",
+  "name": "@uniipay/adapter-stripe",
   "version": "0.1.0",
   "description": "Stripe payment gateway adapter for UniPay - Supporting Checkout Sessions, Payment Intents, refunds, and webhooks",
   "keywords": [
@@ -27,11 +27,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@unipay/core": "workspace:*",
+    "@uniipay/core": "workspace:*",
     "stripe": "^14.0.0"
   },
   "peerDependencies": {
-    "@unipay/core": "^0.1.0"
+    "@uniipay/core": "^0.1.0"
   },
   "repository": {
     "type": "git",

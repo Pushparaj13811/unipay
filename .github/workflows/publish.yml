@@ -37,28 +37,28 @@ jobs:
       - name: Build packages
         run: pnpm build
 
-      - name: Publish @unipay/core
+      - name: Publish @uniipay/core
         run: |
           cd packages/core
           npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish @unipay/orchestrator
+      - name: Publish @uniipay/orchestrator
         run: |
           cd packages/orchestrator
           npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish @unipay/adapter-stripe
+      - name: Publish @uniipay/adapter-stripe
         run: |
           cd packages/adapters/stripe
           npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish @unipay/adapter-razorpay
+      - name: Publish @uniipay/adapter-razorpay
         run: |
           cd packages/adapters/razorpay
           npm publish --access public --provenance
@@ -69,7 +69,7 @@ jobs:
         run: |
           echo "## 📦 Published Packages" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- [@unipay/core](https://www.npmjs.com/package/@unipay/core)" >> $GITHUB_STEP_SUMMARY
-          echo "- [@unipay/orchestrator](https://www.npmjs.com/package/@unipay/orchestrator)" >> $GITHUB_STEP_SUMMARY
-          echo "- [@unipay/adapter-stripe](https://www.npmjs.com/package/@unipay/adapter-stripe)" >> $GITHUB_STEP_SUMMARY
-          echo "- [@unipay/adapter-razorpay](https://www.npmjs.com/package/@unipay/adapter-razorpay)" >> $GITHUB_STEP_SUMMARY
+          echo "- [@uniipay/core](https://www.npmjs.com/package/@uniipay/core)" >> $GITHUB_STEP_SUMMARY
+          echo "- [@uniipay/orchestrator](https://www.npmjs.com/package/@uniipay/orchestrator)" >> $GITHUB_STEP_SUMMARY
+          echo "- [@uniipay/adapter-stripe](https://www.npmjs.com/package/@uniipay/adapter-stripe)" >> $GITHUB_STEP_SUMMARY
+          echo "- [@uniipay/adapter-razorpay](https://www.npmjs.com/package/@uniipay/adapter-razorpay)" >> $GITHUB_STEP_SUMMARY

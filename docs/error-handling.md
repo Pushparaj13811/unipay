@@ -92,7 +92,7 @@ import {
 
   // Adapter
   AdapterError
-} from '@unipay/core'
+} from '@uniipay/core'
 ```
 
 ## Error Types

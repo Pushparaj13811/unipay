@@ -372,7 +372,7 @@ const result = await client.createPayment({
 ## Checking Provider Capabilities
 
 ```typescript
-import { hasCapability, AdapterCapability } from '@unipay/core'
+import { hasCapability, AdapterCapability } from '@uniipay/core'
 
 const capabilities = client.getProviderCapabilities(PaymentProvider.RAZORPAY)
 
@@ -390,7 +390,7 @@ if (capabilities) {
 
 ```typescript
 // Backend: /api/checkout
-import { createPaymentClient, PaymentProvider, CheckoutMode } from '@unipay/orchestrator'
+import { createPaymentClient, PaymentProvider, CheckoutMode } from '@uniipay/orchestrator'
 
 app.post('/api/checkout', async (req, res) => {
   const { orderId, amount, currency, preferSdk } = req.body
