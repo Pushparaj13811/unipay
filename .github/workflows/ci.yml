@@ -41,7 +41,7 @@ jobs:
         run: pnpm typecheck
 
       - name: Run unit tests
-        run: pnpm test
+        run: pnpm test:run
 
       - name: Build packages
         run: pnpm build
