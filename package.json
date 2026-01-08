@@ -2,6 +2,7 @@
   "name": "unipay",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Unified payment gateway abstraction layer - Multi-provider payment orchestration with Stripe, Razorpay, and more",
   "keywords": [
     "payment",
