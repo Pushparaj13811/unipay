@@ -83,8 +83,8 @@ jobs:
       - name: Run integration tests
         env:
           STRIPE_TEST_KEY: ${{ secrets.STRIPE_TEST_KEY }}
-          RAZORPAY_TEST_KEY: ${{ secrets.RAZORPAY_TEST_KEY }}
-          RAZORPAY_TEST_SECRET: ${{ secrets.RAZORPAY_TEST_SECRET }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
         run: pnpm test:integration
         continue-on-error: true
 

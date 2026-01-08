@@ -170,52 +170,53 @@ npm install @uniipay/orchestrator @uniipay/adapter-stripe @uniipay/adapter-razor
 **Single Gateway Example:**
 
 ```typescript
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
 import { StripeAdapter } from '@uniipay/adapter-stripe'
 
-const stripe = new StripeAdapter({
-  secretKey: process.env.STRIPE_SECRET_KEY!,
-  webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({ apiKey: process.env.STRIPE_SECRET_KEY })
+  ],
+  webhookConfigs: [
+    { provider: PaymentProvider.STRIPE, signingSecret: process.env.STRIPE_WEBHOOK_SECRET }
+  ]
 })
 
-const checkout = await stripe.createCheckout({
-  amount: 5000,
-  currency: 'usd',
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' },
   successUrl: 'https://example.com/success',
-  cancelUrl: 'https://example.com/cancel',
+  cancelUrl: 'https://example.com/cancel'
 })
 
-console.log(checkout.checkoutUrl)
+console.log(result.checkoutUrl)
 ```
 
 **Multi-Gateway Example:**
 
 ```typescript
-import { PaymentOrchestrator } from '@uniipay/orchestrator'
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
 import { StripeAdapter } from '@uniipay/adapter-stripe'
 import { RazorpayAdapter } from '@uniipay/adapter-razorpay'
 
-const orchestrator = new PaymentOrchestrator({
-  providers: [
-    {
-      adapter: new StripeAdapter({ secretKey: process.env.STRIPE_SECRET_KEY! }),
-      priority: 1,
-    },
-    {
-      adapter: new RazorpayAdapter({
-        keyId: process.env.RAZORPAY_KEY_ID!,
-        keySecret: process.env.RAZORPAY_KEY_SECRET!,
-      }),
-      priority: 2,
-    },
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({ apiKey: process.env.STRIPE_SECRET_KEY }),
+    new RazorpayAdapter({
+      keyId: process.env.RAZORPAY_KEY_ID,
+      keySecret: process.env.RAZORPAY_KEY_SECRET
+    })
   ],
-  strategy: 'first-available',
+  resolutionStrategy: 'by-currency',
+  webhookConfigs: [
+    { provider: PaymentProvider.STRIPE, signingSecret: process.env.STRIPE_WEBHOOK_SECRET },
+    { provider: PaymentProvider.RAZORPAY, signingSecret: process.env.RAZORPAY_WEBHOOK_SECRET }
+  ]
 })
 
-const checkout = await orchestrator.createCheckout({
-  amount: 5000,
-  currency: 'inr',
+const result = await client.createPayment({
+  money: { amount: 10000, currency: 'INR' },
   successUrl: 'https://example.com/success',
-  cancelUrl: 'https://example.com/cancel',
+  cancelUrl: 'https://example.com/cancel'
 })
 ```
 

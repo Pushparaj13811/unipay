@@ -104,7 +104,7 @@ pnpm typecheck
 pnpm test
 
 # Run integration tests (if credentials available)
-STRIPE_TEST_KEY=sk_test_xxx RAZORPAY_TEST_KEY=rzp_test_xxx pnpm test:integration
+STRIPE_TEST_KEY=sk_test_xxx RAZORPAY_KEY_ID=rzp_test_xxx RAZORPAY_KEY_SECRET=xxx pnpm test:integration
 ```
 
 ### 2. Build All Packages

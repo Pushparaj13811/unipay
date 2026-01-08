@@ -140,7 +140,7 @@ npm login
 2. Name: `STRIPE_TEST_KEY`
 3. Value: Your Stripe test secret key (sk_test_...)
 
-#### 3. RAZORPAY_TEST_KEY (Optional - for Integration Tests)
+#### 3. RAZORPAY_KEY_ID (Optional - for Integration Tests)
 
 **Purpose**: Run Razorpay integration tests in CI
 
@@ -153,10 +153,10 @@ npm login
 
 **Add to GitHub**:
 1. Settings → Secrets and variables → Actions
-2. Name: `RAZORPAY_TEST_KEY`
+2. Name: `RAZORPAY_KEY_ID`
 3. Value: Your Razorpay test key ID (rzp_test_...)
 
-#### 4. RAZORPAY_TEST_SECRET (Optional - for Integration Tests)
+#### 4. RAZORPAY_KEY_SECRET (Optional - for Integration Tests)
 
 **Purpose**: Run Razorpay integration tests in CI
 
@@ -169,7 +169,7 @@ npm login
 
 **Add to GitHub**:
 1. Settings → Secrets and variables → Actions
-2. Name: `RAZORPAY_TEST_SECRET`
+2. Name: `RAZORPAY_KEY_SECRET`
 3. Value: Your Razorpay test key secret
 
 #### 5. SNYK_TOKEN (Optional - for Security Scanning)
@@ -615,12 +615,12 @@ Error: Missing STRIPE_TEST_KEY environment variable
 
 # To fix, add secrets:
 # Visit: https://github.com/Pushparaj13811/unipay/settings/secrets/actions
-# Add STRIPE_TEST_KEY, RAZORPAY_TEST_KEY, RAZORPAY_TEST_SECRET
+# Add STRIPE_TEST_KEY, RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 
 # Or run integration tests locally
 export STRIPE_TEST_KEY=sk_test_...
-export RAZORPAY_TEST_KEY=rzp_test_...
-export RAZORPAY_TEST_SECRET=...
+export RAZORPAY_KEY_ID=rzp_test_...
+export RAZORPAY_KEY_SECRET=...
 pnpm test:integration
 ```
 
