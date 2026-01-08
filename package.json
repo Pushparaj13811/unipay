@@ -16,12 +16,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/unipay.git"
+    "url": "https://github.com/Pushparaj13811/unipay.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/unipay/issues"
+    "url": "https://github.com/Pushparaj13811/unipay/issues"
   },
-  "homepage": "https://github.com/yourusername/unipay#readme",
+  "homepage": "https://github.com/Pushparaj13811/unipay#readme",
   "packageManager": "pnpm@10.27.0",
   "workspaces": [
     "packages/*",

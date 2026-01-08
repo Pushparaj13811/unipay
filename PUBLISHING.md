@@ -498,7 +498,7 @@ For automated publishing via GitHub Actions, see:
 ## Questions or Issues?
 
 - **NPM Registry Issues**: https://npm.community/
-- **UniPay Issues**: https://github.com/yourusername/unipay/issues
+- **UniPay Issues**: https://github.com/Pushparaj13811/unipay/issues
 - **Publishing Help**: https://docs.npmjs.com/cli/v9/commands/npm-publish
 
 ---

@@ -192,7 +192,7 @@ npm login
 
 ```bash
 # Check secrets are configured (won't show values)
-# Visit: https://github.com/[username]/unipay/settings/secrets/actions
+# Visit: https://github.com/Pushparaj13811/unipay/settings/secrets/actions
 ```
 
 ---
@@ -250,7 +250,7 @@ Runs on every CI execution:
 
 ```bash
 # View workflow runs
-# Visit: https://github.com/[username]/unipay/actions
+# Visit: https://github.com/Pushparaj13811/unipay/actions
 
 # Check specific run
 # Click on workflow run → View job logs
@@ -299,7 +299,7 @@ All packages are published with `--provenance` flag:
 
 ```bash
 # View publish workflow run
-# Visit: https://github.com/[username]/unipay/actions/workflows/publish.yml
+# Visit: https://github.com/Pushparaj13811/unipay/actions/workflows/publish.yml
 
 # Check published packages
 npm view @unipay/core
@@ -391,7 +391,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for full details."
 
 **Option B: Using GitHub Web UI**
 
-1. Visit: `https://github.com/[username]/unipay/releases/new`
+1. Visit: `https://github.com/Pushparaj13811/unipay/releases/new`
 2. Select tag: `v0.2.0`
 3. Release title: `v0.2.0`
 4. Description: Copy from CHANGELOG
@@ -401,7 +401,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for full details."
 
 ```bash
 # Watch workflow execution
-# Visit: https://github.com/[username]/unipay/actions
+# Visit: https://github.com/Pushparaj13811/unipay/actions
 
 # Wait for green checkmark ✓
 # Check each publish step completed successfully
@@ -537,7 +537,7 @@ npm ERR! need auth This command requires you to be logged in.
 **Solution**:
 ```bash
 # Check NPM_TOKEN secret is configured
-# Visit: https://github.com/[username]/unipay/settings/secrets/actions
+# Visit: https://github.com/Pushparaj13811/unipay/settings/secrets/actions
 
 # Verify token is valid
 npm login
@@ -614,7 +614,7 @@ Error: Missing STRIPE_TEST_KEY environment variable
 # Marked as continue-on-error: true
 
 # To fix, add secrets:
-# Visit: https://github.com/[username]/unipay/settings/secrets/actions
+# Visit: https://github.com/Pushparaj13811/unipay/settings/secrets/actions
 # Add STRIPE_TEST_KEY, RAZORPAY_TEST_KEY, RAZORPAY_TEST_SECRET
 
 # Or run integration tests locally
@@ -802,7 +802,7 @@ npm install ../packages/core/unipay-core-0.1.0.tgz
 ## Support
 
 For issues with CI/CD setup:
-- **GitHub Issues**: https://github.com/[username]/unipay/issues
+- **GitHub Issues**: https://github.com/Pushparaj13811/unipay/issues
 - **GitHub Actions Community**: https://github.community/c/github-actions
 - **NPM Support**: https://npm.community/
 
