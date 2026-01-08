@@ -33,6 +33,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build packages
+        run: pnpm build
+
       - name: Lint check (if configured)
         run: pnpm lint || echo "No lint script configured"
         continue-on-error: true
@@ -42,9 +45,6 @@ jobs:
 
       - name: Run unit tests
         run: pnpm test:run
-
-      - name: Build packages
-        run: pnpm build
 
       - name: Upload coverage reports
         if: matrix.node-version == '20.x'
