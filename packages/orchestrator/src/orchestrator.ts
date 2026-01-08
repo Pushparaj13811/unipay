@@ -37,7 +37,7 @@ import {
   parseUnipayId,
   hasCapability,
   supportsCurrency
-} from '@unipay/core'
+} from '@uniipay/core'
 
 import {
   resolveFirstAvailable,

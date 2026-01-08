@@ -44,7 +44,7 @@ function createPaymentClient(options: PaymentClientOptions): PaymentClient
 ### Example
 
 ```typescript
-import { createPaymentClient, PaymentProvider } from '@unipay/orchestrator'
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
 
 const client = createPaymentClient({
   adapters: [new StripeAdapter({ apiKey: 'sk_...' })],

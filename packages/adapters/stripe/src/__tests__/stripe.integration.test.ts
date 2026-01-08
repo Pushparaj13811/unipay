@@ -20,7 +20,7 @@ import {
   PaymentStatus,
   RefundStatus,
   CheckoutMode,
-} from '@unipay/core'
+} from '@uniipay/core'
 
 // Skip all tests if no API key is provided
 const STRIPE_TEST_KEY = process.env.STRIPE_TEST_KEY

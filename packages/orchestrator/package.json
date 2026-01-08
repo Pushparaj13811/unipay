@@ -1,7 +1,23 @@
 {
-  "name": "@unipay/orchestrator",
+  "name": "@uniipay/orchestrator",
   "version": "0.1.0",
-  "description": "Unified payment gateway orchestrator",
+  "description": "Intelligent payment gateway orchestrator with automatic failover, routing strategies, and multi-provider support",
+  "keywords": [
+    "payment-orchestrator",
+    "payment-gateway",
+    "multi-gateway",
+    "payment-routing",
+    "failover",
+    "load-balancing",
+    "payment-processing",
+    "stripe",
+    "razorpay",
+    "payment-abstraction",
+    "unified-payments",
+    "payment-sdk",
+    "orchestration",
+    "routing-strategy"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
@@ -10,8 +26,21 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@unipay/core": "workspace:*"
+    "@uniipay/core": "workspace:*"
   },
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pushparaj13811/unipay.git",
+    "directory": "packages/orchestrator"
+  },
+  "bugs": {
+    "url": "https://github.com/Pushparaj13811/unipay/issues"
+  },
+  "homepage": "https://github.com/Pushparaj13811/unipay#readme",
+  "author": "UniPay Contributors",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "packageManager": "pnpm@10.27.0"
 }

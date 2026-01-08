@@ -448,7 +448,7 @@ export interface PaymentClient {
  * Factory function type for creating PaymentClient
  *
  * @example
- * import { createPaymentClient } from '@unipay/orchestrator'
+ * import { createPaymentClient } from '@uniipay/orchestrator'
  *
  * const client = createPaymentClient({
  *   adapters: [stripeAdapter, razorpayAdapter],

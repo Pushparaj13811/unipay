@@ -6,17 +6,17 @@ This guide will help you set up UniPay and make your first payment.
 
 ```bash
 # Install core and orchestrator
-npm install @unipay/core @unipay/orchestrator
+npm install @uniipay/core @uniipay/orchestrator
 
 # Install adapters for your payment gateways
-npm install @unipay/adapter-stripe
-npm install @unipay/adapter-razorpay
-npm install @unipay/adapter-payu
+npm install @uniipay/adapter-stripe
+npm install @uniipay/adapter-razorpay
+npm install @uniipay/adapter-payu
 ```
 
 Or with pnpm:
 ```bash
-pnpm add @unipay/core @unipay/orchestrator @unipay/adapter-stripe
+pnpm add @uniipay/core @uniipay/orchestrator @uniipay/adapter-stripe
 ```
 
 ## Basic Setup
@@ -24,8 +24,8 @@ pnpm add @unipay/core @unipay/orchestrator @unipay/adapter-stripe
 ### Single Gateway
 
 ```typescript
-import { createPaymentClient, PaymentProvider } from '@unipay/orchestrator'
-import { StripeAdapter } from '@unipay/adapter-stripe'
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
 
 const client = createPaymentClient({
   adapters: [
@@ -43,9 +43,9 @@ const client = createPaymentClient({
 ### Multiple Gateways
 
 ```typescript
-import { createPaymentClient, PaymentProvider } from '@unipay/orchestrator'
-import { StripeAdapter } from '@unipay/adapter-stripe'
-import { RazorpayAdapter } from '@unipay/adapter-razorpay'
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+import { RazorpayAdapter } from '@uniipay/adapter-razorpay'
 
 const client = createPaymentClient({
   adapters: [
@@ -199,7 +199,7 @@ app.post('/webhook/razorpay',
 ### Processing Webhook Events
 
 ```typescript
-import { WebhookEventType, PaymentWebhookPayload } from '@unipay/core'
+import { WebhookEventType, PaymentWebhookPayload } from '@uniipay/core'
 
 async function handleWebhookEvent(event: WebhookEvent) {
   switch (event.eventType) {
@@ -264,7 +264,7 @@ import {
   ProviderNotFoundError,
   UnsupportedCurrencyError,
   WebhookSignatureError
-} from '@unipay/core'
+} from '@uniipay/core'
 
 try {
   const result = await client.createPayment({ ... })

@@ -2,7 +2,7 @@ import {
   PaymentProvider,
   CreatePaymentInput,
   PaymentGatewayAdapter
-} from '@unipay/core'
+} from '@uniipay/core'
 
 /**
  * First available resolution strategy

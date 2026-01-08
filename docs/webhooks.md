@@ -47,7 +47,7 @@ const client = createPaymentClient({
 
 ```typescript
 import express from 'express'
-import { PaymentProvider } from '@unipay/core'
+import { PaymentProvider } from '@uniipay/core'
 
 const app = express()
 
@@ -170,7 +170,7 @@ import {
   WebhookEventType,
   PaymentWebhookPayload,
   RefundWebhookPayload
-} from '@unipay/core'
+} from '@uniipay/core'
 
 async function processWebhookEvent(event: WebhookEvent) {
   // Idempotency: Check if already processed
@@ -317,7 +317,7 @@ import {
   WebhookSignatureError,
   WebhookParsingError,
   WebhookProviderNotConfiguredError
-} from '@unipay/core'
+} from '@uniipay/core'
 
 function handleWebhookError(error: unknown, res: express.Response) {
   if (error instanceof WebhookSignatureError) {

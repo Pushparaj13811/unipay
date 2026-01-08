@@ -2,7 +2,7 @@ import {
   PaymentProvider,
   CreatePaymentInput,
   PaymentGatewayAdapter
-} from '@unipay/core'
+} from '@uniipay/core'
 
 /**
  * State for round-robin resolution

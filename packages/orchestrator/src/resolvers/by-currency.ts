@@ -3,7 +3,7 @@ import {
   CreatePaymentInput,
   PaymentGatewayAdapter,
   supportsCurrency
-} from '@unipay/core'
+} from '@uniipay/core'
 
 /**
  * Currency-based resolution strategy

@@ -23,9 +23,9 @@ Want to add support for a new payment gateway? See the [Implementing Adapters](.
 ## Quick Example
 
 ```typescript
-import { createPaymentClient, PaymentProvider } from '@unipay/orchestrator'
-import { StripeAdapter } from '@unipay/adapter-stripe'
-import { RazorpayAdapter } from '@unipay/adapter-razorpay'
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+import { RazorpayAdapter } from '@uniipay/adapter-razorpay'
 
 // Configure multiple gateways
 const client = createPaymentClient({
@@ -71,7 +71,7 @@ Full TypeScript support with discriminated unions and comprehensive error types.
 ## Package Structure
 
 ```
-@unipay/core          - Core types, interfaces, and errors
-@unipay/orchestrator  - Payment orchestration and routing
-@unipay/adapter-*     - Individual gateway adapters
+@uniipay/core          - Core types, interfaces, and errors
+@uniipay/orchestrator  - Payment orchestration and routing
+@uniipay/adapter-*     - Individual gateway adapters
 ```

@@ -15,10 +15,10 @@ UniPay is designed from the ground up for multi-gateway operation. This guide co
 ## Basic Multi-Gateway Setup
 
 ```typescript
-import { createPaymentClient, PaymentProvider } from '@unipay/orchestrator'
-import { StripeAdapter } from '@unipay/adapter-stripe'
-import { RazorpayAdapter } from '@unipay/adapter-razorpay'
-import { PayUAdapter } from '@unipay/adapter-payu'
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+import { RazorpayAdapter } from '@uniipay/adapter-razorpay'
+import { PayUAdapter } from '@uniipay/adapter-payu'
 
 const client = createPaymentClient({
   adapters: [
@@ -243,7 +243,7 @@ const payment2 = await client.createPayment(
 Before routing, check what each provider supports:
 
 ```typescript
-import { hasCapability, AdapterCapability } from '@unipay/core'
+import { hasCapability, AdapterCapability } from '@uniipay/core'
 
 // Check if a provider supports partial refunds
 const stripeCapabilities = client.getProviderCapabilities(PaymentProvider.STRIPE)

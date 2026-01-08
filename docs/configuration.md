@@ -7,7 +7,7 @@ Complete reference for all UniPay configuration options.
 Main configuration object passed to `createPaymentClient()`.
 
 ```typescript
-import { createPaymentClient, PaymentProvider } from '@unipay/orchestrator'
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
 
 const client = createPaymentClient({
   // Required: At least one adapter

@@ -16,7 +16,7 @@ UniPay provides two ways to select a provider:
 Pass `provider` in the options object to force a specific gateway:
 
 ```typescript
-import { PaymentProvider } from '@unipay/core'
+import { PaymentProvider } from '@uniipay/core'
 
 // Let routing decide
 const autoRouted = await client.createPayment({
@@ -157,7 +157,7 @@ import {
   parseUnipayId,
   isValidUnipayId,
   getProviderFromUnipayId
-} from '@unipay/core'
+} from '@uniipay/core'
 
 // Create a UniPay ID
 const id = createUnipayId(PaymentProvider.STRIPE, 'cs_test_abc123')
@@ -198,7 +198,7 @@ await client.createPayment(input)
 ### Provider Not Found
 
 ```typescript
-import { ProviderNotFoundError } from '@unipay/core'
+import { ProviderNotFoundError } from '@uniipay/core'
 
 try {
   await client.createPayment(input, { provider: PaymentProvider.PAYPAL })
@@ -213,7 +213,7 @@ try {
 ### Invalid UniPay ID
 
 ```typescript
-import { InvalidUnipayIdError } from '@unipay/core'
+import { InvalidUnipayIdError } from '@uniipay/core'
 
 try {
   await client.getPayment('invalid-format')
@@ -227,7 +227,7 @@ try {
 ### Unsupported Currency
 
 ```typescript
-import { UnsupportedCurrencyError } from '@unipay/core'
+import { UnsupportedCurrencyError } from '@uniipay/core'
 
 try {
   await client.createPayment(
@@ -273,7 +273,7 @@ import {
   ProviderNotFoundError,
   hasCapability,
   AdapterCapability
-} from '@unipay/orchestrator'
+} from '@uniipay/orchestrator'
 
 const client = createPaymentClient({
   adapters: [

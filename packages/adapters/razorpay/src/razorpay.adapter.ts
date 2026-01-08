@@ -28,7 +28,7 @@ import {
   RefundNotFoundError,
   WebhookParsingError,
   MissingRequiredFieldError
-} from '@unipay/core'
+} from '@uniipay/core'
 import type { Orders } from 'razorpay/dist/types/orders'
 import type { PaymentLinks } from 'razorpay/dist/types/paymentLink'
 import type { Payments } from 'razorpay/dist/types/payments'

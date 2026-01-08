@@ -1,6 +1,23 @@
 {
-  "name": "@unipay/adapter-razorpay",
+  "name": "@uniipay/adapter-razorpay",
   "version": "0.1.0",
+  "description": "Razorpay payment gateway adapter for UniPay - Supporting Orders, Payment Links, UPI, cards, and webhooks for Indian payments",
+  "keywords": [
+    "razorpay",
+    "razorpay-payment",
+    "razorpay-adapter",
+    "payment-gateway",
+    "unipay",
+    "indian-payments",
+    "upi",
+    "payment-processing",
+    "razorpay-orders",
+    "payment-links",
+    "razorpay-webhook",
+    "refunds",
+    "payment-sdk",
+    "typescript"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -11,13 +28,26 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@unipay/core": "workspace:*",
+    "@uniipay/core": "workspace:*",
     "razorpay": "^2.9.0"
   },
   "peerDependencies": {
-    "@unipay/core": "^0.1.0"
+    "@uniipay/core": "^0.1.0"
   },
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pushparaj13811/unipay.git",
+    "directory": "packages/adapters/razorpay"
+  },
+  "bugs": {
+    "url": "https://github.com/Pushparaj13811/unipay/issues"
+  },
+  "homepage": "https://github.com/Pushparaj13811/unipay#readme",
+  "author": "UniPay Contributors",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "packageManager": "pnpm@10.27.0",
   "devDependencies": {
     "@types/node": "^25.0.3"

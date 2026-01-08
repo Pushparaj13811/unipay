@@ -16,7 +16,7 @@ import {
   MissingWebhookConfigError,
   WebhookSignatureError,
   createUnipayId,
-} from '@unipay/core'
+} from '@uniipay/core'
 import {
   createMockAdapter,
   createMockPaymentResult,

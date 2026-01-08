@@ -19,7 +19,7 @@ import {
   RefundStatus,
   WebhookEventType,
   createUnipayId,
-} from '@unipay/core'
+} from '@uniipay/core'
 
 /**
  * Configuration for creating a mock adapter

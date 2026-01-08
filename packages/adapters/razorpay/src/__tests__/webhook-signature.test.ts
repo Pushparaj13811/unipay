@@ -14,7 +14,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createHmac } from 'crypto'
 import { RazorpayAdapter } from '../razorpay.adapter'
-import { PaymentProvider } from '@unipay/core'
+import { PaymentProvider } from '@uniipay/core'
 
 // We need to mock the Razorpay SDK constructor but NOT the signature validation
 vi.mock('razorpay', () => {

@@ -5,7 +5,7 @@ export type {
   ProviderResolutionStrategy,
   ProviderResolver,
   AmountRoute
-} from '@unipay/core'
+} from '@uniipay/core'
 
 // Internal types for orchestrator
 export type { RoundRobinState } from './resolvers'

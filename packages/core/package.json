@@ -1,7 +1,24 @@
 {
-  "name": "@unipay/core",
+  "name": "@uniipay/core",
   "version": "0.1.0",
-  "description": "Core contracts and types for UniPay payment orchestration",
+  "description": "Unified payment gateway abstraction layer - Core contracts, types, and interfaces for multi-provider payment orchestration",
+  "keywords": [
+    "payment",
+    "gateway",
+    "payment-gateway",
+    "payments",
+    "stripe",
+    "razorpay",
+    "payment-processing",
+    "multi-gateway",
+    "payment-orchestration",
+    "unified-payments",
+    "payment-abstraction",
+    "payment-sdk",
+    "checkout",
+    "refunds",
+    "webhooks"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
@@ -9,6 +26,19 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist"
   },
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pushparaj13811/unipay.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/Pushparaj13811/unipay/issues"
+  },
+  "homepage": "https://github.com/Pushparaj13811/unipay#readme",
+  "author": "UniPay Contributors",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "packageManager": "pnpm@10.27.0"
 }

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// @unipay/orchestrator - Payment orchestration for multi-gateway setups
+// @uniipay/orchestrator - Payment orchestration for multi-gateway setups
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Main exports
@@ -25,5 +25,5 @@ export {
 } from './resolvers'
 
 // Re-export everything from core for convenience
-// This allows users to import from @unipay/orchestrator only
-export * from '@unipay/core'
+// This allows users to import from @uniipay/orchestrator only
+export * from '@uniipay/core'

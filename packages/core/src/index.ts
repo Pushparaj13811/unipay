@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// @unipay/core - Core types, interfaces, and errors for UniPay
+// @uniipay/core - Core types, interfaces, and errors for UniPay
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Enums
