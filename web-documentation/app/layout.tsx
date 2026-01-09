@@ -5,10 +5,33 @@ import './globals.css'
  
 export const metadata = {
   title: {
-    default: 'UniPay',
+    default: 'UniPay - Unified Payment Gateway for Node.js',
     template: '%s – UniPay'
   },
-  description: 'Unified payment gateway abstraction for Node.js'
+  description: 'UniPay provides a unified payment gateway abstraction for Node.js. Seamlessly integrate Stripe, PayPal, Razorpay, and more with one elegant API.',
+  metadataBase: new URL('https://unipay.hpm.com.np'),
+  openGraph: {
+    title: 'UniPay - Unified Payment Gateway for Node.js',
+    description: 'UniPay provides a unified payment gateway abstraction for Node.js. Seamlessly integrate Stripe, PayPal, Razorpay, and more with one elegant API.',
+    url: 'https://unipay.hpm.com.np',
+    siteName: 'UniPay',
+    images: [
+      {
+        url: '/og-image.svg',
+        width: 1200,
+        height: 630,
+        alt: 'UniPay - Unified Payment Gateway Abstraction for Node.js'
+      }
+    ],
+    locale: 'en_US',
+    type: 'website'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'UniPay - Unified Payment Gateway for Node.js',
+    description: 'UniPay provides a unified payment gateway abstraction for Node.js. Seamlessly integrate Stripe, PayPal, Razorpay, and more with one elegant API.',
+    images: ['/og-image.svg']
+  }
 }
 
 const navbar = (
