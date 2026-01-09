@@ -1,9 +1,21 @@
 {
   "name": "unipay",
   "version": "0.1.0",
-  "private": true,
-  "type": "module",
+  "author": "UniPay Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pushparaj13811/unipay.git"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/Pushparaj13811/unipay/issues"
+  },
   "description": "Unified payment gateway abstraction layer - Multi-provider payment orchestration with Stripe, Razorpay, and more",
+  "homepage": "https://github.com/Pushparaj13811/unipay#readme",
   "keywords": [
     "payment",
     "payment-gateway",
@@ -13,21 +25,9 @@
     "multi-gateway",
     "monorepo"
   ],
-  "author": "UniPay Contributors",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Pushparaj13811/unipay.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Pushparaj13811/unipay/issues"
-  },
-  "homepage": "https://github.com/Pushparaj13811/unipay#readme",
   "packageManager": "pnpm@10.27.0",
-  "workspaces": [
-    "packages/*",
-    "packages/adapters/*"
-  ],
+  "private": true,
   "scripts": {
     "build": "pnpm -r build",
     "clean": "pnpm -r clean",
@@ -39,9 +39,9 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:all": "vitest run && vitest run --config vitest.integration.config.ts"
   },
-  "devDependencies": {
-    "@vitest/coverage-v8": "^3.0.0",
-    "typescript": "^5.3.3",
-    "vitest": "^3.0.0"
-  }
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "packages/adapters/*"
+  ]
 }

@@ -1,0 +1,472 @@
+# Webhooks
+
+Webhooks notify your application when payment events occur. UniPay normalizes webhook events from all providers into a unified format.
+
+## Why Use Webhooks?
+
+Redirect URLs alone aren't reliable because:
+- Users may close the browser before returning
+- Network failures can prevent redirects
+- Users may not complete the redirect flow
+
+**Webhooks ensure you never miss a payment event.**
+
+## Quick Setup
+
+### 1. Configure Webhook Secrets
+
+```typescript
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
+
+const client = createPaymentClient({
+  adapters: [stripeAdapter, razorpayAdapter],
+  webhookConfigs: [
+    {
+      provider: PaymentProvider.STRIPE,
+      signingSecret: process.env.STRIPE_WEBHOOK_SECRET!
+    },
+    {
+      provider: PaymentProvider.RAZORPAY,
+      signingSecret: process.env.RAZORPAY_WEBHOOK_SECRET!
+    }
+  ]
+})
+```
+
+### 2. Create Webhook Endpoint
+
+```typescript
+import express from 'express'
+
+const app = express()
+
+// IMPORTANT: Use raw body for signature verification
+app.post('/webhooks/:provider',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    try {
+      const provider = req.params.provider.toUpperCase()
+
+      const event = await client.handleWebhook(provider, {
+        rawBody: req.body.toString(),
+        headers: req.headers as Record<string, string>
+      })
+
+      // Process event
+      await processWebhookEvent(event)
+
+      res.status(200).json({ received: true })
+    } catch (error) {
+      console.error('Webhook error:', error)
+      res.status(400).json({ error: 'Webhook processing failed' })
+    }
+  }
+)
+```
+
+### 3. Register Webhook URLs with Providers
+
+#### Stripe
+1. Go to **Dashboard** → **Developers** → **Webhooks**
+2. Add endpoint: `https://your-domain.com/webhooks/stripe`
+3. Select events: `checkout.session.completed`, `charge.succeeded`, `charge.failed`, `charge.refunded`
+4. Copy webhook signing secret
+
+#### Razorpay
+1. Go to **Settings** → **Webhooks**
+2. Add URL: `https://your-domain.com/webhooks/razorpay`
+3. Select events: `payment.captured`, `payment.failed`, `order.paid`, `refund.processed`
+4. Copy webhook secret
+
+## Event Types
+
+UniPay normalizes all provider events into these types:
+
+### Payment Events
+
+| Event | Meaning | When to Use |
+|-------|---------|-------------|
+| `PAYMENT_CREATED` | Payment session created | Track payment initiation |
+| `PAYMENT_PENDING` | Payment initiated | Show "processing" status |
+| `PAYMENT_PROCESSING` | Payment being processed | Update order status |
+| `PAYMENT_SUCCEEDED` | ✅ Payment successful | **Fulfill order** |
+| `PAYMENT_FAILED` | ❌ Payment failed | Notify customer, allow retry |
+| `PAYMENT_CANCELLED` | User cancelled | Update order status |
+| `PAYMENT_EXPIRED` | Session expired | Clean up pending orders |
+
+### Refund Events
+
+| Event | Meaning | When to Use |
+|-------|---------|-------------|
+| `REFUND_CREATED` | Refund initiated | Track refund request |
+| `REFUND_PROCESSING` | Refund being processed | Show "processing" |
+| `REFUND_SUCCEEDED` | ✅ Refund successful | Update records, notify customer |
+| `REFUND_FAILED` | ❌ Refund failed | Alert admin |
+
+## Processing Events
+
+```typescript
+import { WebhookEventType } from '@uniipay/orchestrator'
+
+async function processWebhookEvent(event: WebhookEvent) {
+  console.log(`Received ${event.eventType} from ${event.provider}`)
+
+  switch (event.eventType) {
+    case WebhookEventType.PAYMENT_SUCCEEDED:
+      await handlePaymentSuccess(event)
+      break
+
+    case WebhookEventType.PAYMENT_FAILED:
+      await handlePaymentFailure(event)
+      break
+
+    case WebhookEventType.REFUND_SUCCEEDED:
+      await handleRefundSuccess(event)
+      break
+
+    case WebhookEventType.UNKNOWN:
+      console.warn('Unknown webhook event:', event.payload)
+      break
+  }
+}
+
+async function handlePaymentSuccess(event: WebhookEvent) {
+  if (event.payload.type !== 'payment') return
+
+  const { providerPaymentId, status, money, metadata } = event.payload
+
+  // Update database
+  await db.orders.update({
+    where: { unipayId: `${event.provider.toLowerCase()}:${providerPaymentId}` },
+    data: { status: 'PAID', paidAt: new Date() }
+  })
+
+  // Fulfill order
+  await fulfillOrder(metadata?.orderId)
+
+  // Send confirmation email
+  await sendEmail({
+    to: metadata?.customerEmail,
+    subject: 'Payment Successful',
+    template: 'payment-success',
+    data: { orderId: metadata?.orderId, amount: money.amount }
+  })
+}
+
+async function handlePaymentFailure(event: WebhookEvent) {
+  if (event.payload.type !== 'payment') return
+
+  const { providerPaymentId, failureReason, metadata } = event.payload
+
+  // Update database
+  await db.orders.update({
+    where: { unipayId: `${event.provider.toLowerCase()}:${providerPaymentId}` },
+    data: { status: 'FAILED', failureReason }
+  })
+
+  // Notify customer
+  await sendEmail({
+    to: metadata?.customerEmail,
+    subject: 'Payment Failed',
+    template: 'payment-failed',
+    data: { orderId: metadata?.orderId, reason: failureReason }
+  })
+}
+```
+
+## Webhook Payload Structure
+
+```typescript
+type WebhookEvent = {
+  provider: PaymentProvider           // 'STRIPE' | 'RAZORPAY'
+  eventType: WebhookEventType         // Normalized event type
+  providerEventId: string             // For deduplication
+  providerEventType: string           // Original provider event name
+  timestamp: Date
+  payload: WebhookPayload             // Type-safe payload
+  raw: unknown                        // Original provider response
+}
+
+// Discriminated union
+type WebhookPayload =
+  | {
+      type: 'payment'
+      providerPaymentId: string
+      status: PaymentStatus
+      money: Money
+      metadata?: Record<string, string>
+      failureReason?: string
+      failureCode?: string
+    }
+  | {
+      type: 'refund'
+      providerRefundId: string
+      providerPaymentId: string
+      status: RefundStatus
+      money: Money
+      failureReason?: string
+    }
+  | {
+      type: 'unknown'
+      data: Record<string, unknown>
+    }
+```
+
+## Security Best Practices
+
+### 1. Verify Signatures
+
+UniPay automatically verifies webhook signatures. Never skip this:
+
+```typescript
+// ❌ BAD: Parsing without verification
+const event = JSON.parse(req.body)
+
+// ✅ GOOD: Let UniPay verify signature
+const event = await client.handleWebhook(provider, {
+  rawBody: req.body.toString(),
+  headers: req.headers
+})
+```
+
+### 2. Use HTTPS
+
+Webhook URLs must use HTTPS in production:
+
+```
+✅ https://api.example.com/webhooks/stripe
+❌ http://api.example.com/webhooks/stripe
+```
+
+### 3. Implement Idempotency
+
+Process each event only once using the event ID:
+
+```typescript
+async function processWebhookEvent(event: WebhookEvent) {
+  // Check if already processed
+  const existing = await db.webhookEvents.findUnique({
+    where: { eventId: event.providerEventId }
+  })
+
+  if (existing) {
+    console.log('Event already processed:', event.providerEventId)
+    return
+  }
+
+  // Process event
+  await handleEvent(event)
+
+  // Mark as processed
+  await db.webhookEvents.create({
+    data: {
+      eventId: event.providerEventId,
+      provider: event.provider,
+      eventType: event.eventType,
+      processedAt: new Date()
+    }
+  })
+}
+```
+
+### 4. Respond Quickly
+
+Return 200 immediately, process async:
+
+```typescript
+app.post('/webhooks/:provider', async (req, res) => {
+  try {
+    const event = await client.handleWebhook(provider, {
+      rawBody: req.body.toString(),
+      headers: req.headers
+    })
+
+    // Return 200 immediately
+    res.status(200).json({ received: true })
+
+    // Process asynchronously
+    processWebhookEvent(event).catch(error => {
+      console.error('Async webhook processing failed:', error)
+    })
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid webhook' })
+  }
+})
+```
+
+## Error Handling
+
+```typescript
+import {
+  WebhookSignatureError,
+  WebhookParsingError,
+  WebhookTimestampExpiredError
+} from '@uniipay/orchestrator'
+
+try {
+  const event = await client.handleWebhook(provider, {
+    rawBody: req.body.toString(),
+    headers: req.headers
+  })
+} catch (error) {
+  if (error instanceof WebhookSignatureError) {
+    console.error('Invalid signature - possible tampering')
+    return res.status(401).json({ error: 'Invalid signature' })
+  }
+
+  if (error instanceof WebhookTimestampExpiredError) {
+    console.error('Webhook too old - replay attack?')
+    return res.status(400).json({ error: 'Timestamp expired' })
+  }
+
+  if (error instanceof WebhookParsingError) {
+    console.error('Could not parse webhook payload')
+    return res.status(400).json({ error: 'Invalid payload' })
+  }
+
+  console.error('Unknown webhook error:', error)
+  return res.status(500).json({ error: 'Internal error' })
+}
+```
+
+## Testing Webhooks
+
+### Local Testing with ngrok
+
+```bash
+# Install ngrok
+npm install -g ngrok
+
+# Start your server
+npm run dev
+
+# Expose to internet
+ngrok http 3000
+
+# Use the HTTPS URL in provider dashboard
+# https://abc123.ngrok.io/webhooks/stripe
+```
+
+### Stripe CLI
+
+```bash
+# Install Stripe CLI
+brew install stripe/stripe-cli/stripe
+
+# Login
+stripe login
+
+# Forward webhooks to local server
+stripe listen --forward-to localhost:3000/webhooks/stripe
+
+# Trigger test event
+stripe trigger checkout.session.completed
+```
+
+### Manual Testing
+
+```typescript
+// Create a test endpoint
+app.post('/test-webhook', async (req, res) => {
+  const mockEvent: WebhookEvent = {
+    provider: PaymentProvider.STRIPE,
+    eventType: WebhookEventType.PAYMENT_SUCCEEDED,
+    providerEventId: 'test_' + Date.now(),
+    providerEventType: 'checkout.session.completed',
+    timestamp: new Date(),
+    payload: {
+      type: 'payment',
+      providerPaymentId: 'cs_test_123',
+      status: 'SUCCEEDED',
+      money: { amount: 5000, currency: 'USD' },
+      metadata: { orderId: 'ORD-123', customerEmail: 'test@example.com' }
+    },
+    raw: {}
+  }
+
+  await processWebhookEvent(mockEvent)
+  res.json({ success: true })
+})
+```
+
+## Monitoring
+
+Track webhook delivery and processing:
+
+```typescript
+async function processWebhookEvent(event: WebhookEvent) {
+  const startTime = Date.now()
+
+  try {
+    await handleEvent(event)
+
+    // Log success
+    await logWebhook({
+      eventId: event.providerEventId,
+      provider: event.provider,
+      eventType: event.eventType,
+      status: 'SUCCESS',
+      processingTime: Date.now() - startTime
+    })
+  } catch (error) {
+    // Log failure
+    await logWebhook({
+      eventId: event.providerEventId,
+      provider: event.provider,
+      eventType: event.eventType,
+      status: 'FAILED',
+      error: error.message,
+      processingTime: Date.now() - startTime
+    })
+
+    // Alert on critical events
+    if (event.eventType === WebhookEventType.PAYMENT_SUCCEEDED) {
+      await alertAdmin({
+        message: `Failed to process successful payment: ${event.providerEventId}`,
+        severity: 'HIGH'
+      })
+    }
+  }
+}
+```
+
+## Common Issues
+
+### Issue: Signature Verification Fails
+
+**Cause**: Using parsed JSON body instead of raw body
+
+**Solution**: Use `express.raw()` middleware:
+```typescript
+app.use('/webhooks', express.raw({ type: 'application/json' }))
+```
+
+### Issue: Duplicate Events
+
+**Cause**: Provider retries if endpoint doesn't respond with 200
+
+**Solution**: Implement idempotency (see above)
+
+### Issue: Events Out of Order
+
+**Cause**: Network latency, parallel processing
+
+**Solution**: Check timestamp, use database transactions:
+```typescript
+await db.$transaction(async (tx) => {
+  const existing = await tx.orders.findUnique({ where: { id: orderId } })
+
+  // Only update if webhook is newer
+  if (existing.updatedAt < event.timestamp) {
+    await tx.orders.update({ where: { id: orderId }, data: {...} })
+  }
+})
+```
+
+## Next Steps
+
+- **[Refunds →](/guides/refunds)** - Process refunds
+- **[Error Handling →](/guides/errors)** - Handle errors properly
+- **[Production Checklist →](/guides/production)** - Go live checklist
+
+---

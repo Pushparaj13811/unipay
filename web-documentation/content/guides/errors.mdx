@@ -1,0 +1,451 @@
+# Error Handling
+
+UniPay provides a comprehensive error hierarchy with specific error types for every failure scenario. All errors include provider context and actionable information.
+
+## Error Hierarchy
+
+```
+UniPayError (base)
+├── ConfigurationError
+├── ProviderResolutionError
+├── PaymentError
+├── RefundError
+├── WebhookError
+└── ValidationError
+```
+
+## Common Errors
+
+### Payment Creation Errors
+
+```typescript
+import {
+  PaymentCreationError,
+  UnsupportedCurrencyError,
+  UnsupportedCheckoutModeError,
+  InvalidAmountError
+} from '@uniipay/orchestrator'
+
+try {
+  const result = await client.createPayment({
+    money: { amount: 5000, currency: 'USD' },
+    // ...
+  })
+} catch (error) {
+  if (error instanceof UnsupportedCurrencyError) {
+    // Currency not supported by any provider
+    console.error(`Currency ${error.currency} is not supported`)
+    console.error(`Available: ${error.availableCurrencies.join(', ')}`)
+
+    // Action: Show error to user, suggest supported currencies
+  }
+
+  else if (error instanceof UnsupportedCheckoutModeError) {
+    // Requested checkout mode not available
+    console.error(`${error.checkoutMode} mode not supported by ${error.provider}`)
+
+    // Action: Fall back to default checkout mode
+  }
+
+  else if (error instanceof InvalidAmountError) {
+    // Amount too small/large or invalid format
+    console.error(`Invalid amount: ${error.amount}`)
+    console.error(`Min: ${error.minAmount}, Max: ${error.maxAmount}`)
+
+    // Action: Show validation error to user
+  }
+
+  else if (error instanceof PaymentCreationError) {
+    // Generic payment creation failure
+    console.error(`Payment failed on ${error.provider}`)
+    console.error(`Provider error: ${error.providerCode} - ${error.message}`)
+
+    // Action: Log for investigation, show generic error to user
+  }
+}
+```
+
+### Refund Errors
+
+```typescript
+import {
+  RefundCreationError,
+  PaymentNotRefundableError,
+  RefundExceedsPaymentError,
+  PartialRefundNotSupportedError
+} from '@uniipay/orchestrator'
+
+try {
+  const refund = await client.createRefund(unipayId, { amount: 5000 })
+} catch (error) {
+  if (error instanceof PaymentNotRefundableError) {
+    // Payment cannot be refunded
+    console.error(`Payment ${error.unipayId} is not refundable`)
+    console.error(`Reason: ${error.reason}`) // 'already_refunded' | 'too_old' | 'disputed'
+
+    // Action: Show specific message to user
+  }
+
+  else if (error instanceof RefundExceedsPaymentError) {
+    // Refund amount too large
+    console.error('Refund exceeds available amount')
+    console.error(`Payment: ${error.paymentAmount}`)
+    console.error(`Already refunded: ${error.refundedAmount}`)
+    console.error(`Requested: ${error.requestedAmount}`)
+    console.error(`Maximum: ${error.maxRefundableAmount}`)
+
+    // Action: Show max refundable amount to user
+  }
+
+  else if (error instanceof PartialRefundNotSupportedError) {
+    // Provider doesn't support partial refunds
+    console.error(`${error.provider} does not support partial refunds`)
+
+    // Action: Offer full refund only
+  }
+}
+```
+
+### Webhook Errors
+
+```typescript
+import {
+  WebhookSignatureError,
+  WebhookTimestampExpiredError,
+  WebhookParsingError
+} from '@uniipay/orchestrator'
+
+try {
+  const event = await client.handleWebhook(provider, {
+    rawBody: req.body.toString(),
+    headers: req.headers
+  })
+} catch (error) {
+  if (error instanceof WebhookSignatureError) {
+    // Invalid signature - possible tampering
+    console.error('Webhook signature verification failed')
+
+    return res.status(401).json({ error: 'Invalid signature' })
+  }
+
+  else if (error instanceof WebhookTimestampExpiredError) {
+    // Webhook too old - replay attack?
+    console.error(`Webhook timestamp expired`)
+    console.error(`Received: ${error.timestamp}`)
+    console.error(`Tolerance: ${error.tolerance}s`)
+
+    return res.status(400).json({ error: 'Timestamp expired' })
+  }
+
+  else if (error instanceof WebhookParsingError) {
+    // Invalid webhook format
+    console.error('Failed to parse webhook payload')
+
+    return res.status(400).json({ error: 'Invalid payload' })
+  }
+}
+```
+
+## Error Properties
+
+All UniPay errors extend the base `UniPayError` class:
+
+```typescript
+abstract class UniPayError extends Error {
+  abstract code: string           // Machine-readable error code
+  provider?: PaymentProvider      // Which provider (if applicable)
+  cause?: Error                   // Original error from provider SDK
+  providerCode?: string           // Provider-specific error code
+  metadata?: Record<string, unknown>  // Additional error context
+
+  toJSON(): Record<string, unknown>
+}
+```
+
+### Example Error Object
+
+```typescript
+{
+  name: 'PaymentCreationError',
+  code: 'PAYMENT_CREATION_FAILED',
+  message: 'Payment creation failed',
+  provider: 'STRIPE',
+  providerCode: 'card_declined',
+  cause: Error('[Stripe] Your card was declined'),
+  metadata: {
+    declineCode: 'insufficient_funds',
+    paymentIntentId: 'pi_abc123'
+  }
+}
+```
+
+## Complete Error Reference
+
+### Configuration Errors
+
+| Error | Code | Meaning | Fix |
+|-------|------|---------|-----|
+| `InvalidProviderConfigError` | `INVALID_PROVIDER_CONFIG` | Provider config invalid | Check API keys |
+| `MissingProviderError` | `MISSING_PROVIDER` | No adapters registered | Add at least one adapter |
+| `DuplicateProviderError` | `DUPLICATE_PROVIDER` | Same provider added twice | Remove duplicate |
+| `MissingWebhookConfigError` | `MISSING_WEBHOOK_CONFIG` | Webhook secret not configured | Add webhook config |
+
+### Payment Errors
+
+| Error | Code | Meaning | Fix |
+|-------|------|---------|-----|
+| `PaymentCreationError` | `PAYMENT_CREATION_FAILED` | Payment creation failed | Check provider dashboard |
+| `PaymentNotFoundError` | `PAYMENT_NOT_FOUND` | Payment doesn't exist | Verify payment ID |
+| `PaymentExpiredError` | `PAYMENT_EXPIRED` | Payment session expired | Create new payment |
+| `PaymentCancelledError` | `PAYMENT_CANCELLED` | User cancelled payment | Allow retry |
+
+### Validation Errors
+
+| Error | Code | Meaning | Fix |
+|-------|------|---------|-----|
+| `InvalidAmountError` | `INVALID_AMOUNT` | Amount invalid | Check min/max limits |
+| `InvalidCurrencyError` | `INVALID_CURRENCY` | Currency code invalid | Use ISO 4217 codes |
+| `InvalidUrlError` | `INVALID_URL` | URL malformed | Provide valid HTTPS URL |
+| `InvalidUnipayIdError` | `INVALID_UNIPAY_ID` | Invalid UniPay ID format | Check ID format |
+| `MissingRequiredFieldError` | `MISSING_REQUIRED_FIELD` | Required field missing | Add missing field |
+
+## Error Handling Patterns
+
+### Pattern 1: Graceful Degradation
+
+```typescript
+async function createPaymentWithFallback(input: CreatePaymentInput) {
+  try {
+    return await client.createPayment(input)
+  } catch (error) {
+    if (error instanceof UnsupportedCurrencyError) {
+      // Try converting to USD
+      const usdAmount = await convertCurrency(
+        input.money.amount,
+        input.money.currency,
+        'USD'
+      )
+
+      return await client.createPayment({
+        ...input,
+        money: { amount: usdAmount, currency: 'USD' }
+      })
+    }
+
+    throw error
+  }
+}
+```
+
+### Pattern 2: Retry with Exponential Backoff
+
+```typescript
+async function createPaymentWithRetry(
+  input: CreatePaymentInput,
+  maxRetries = 3
+) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await client.createPayment(input)
+    } catch (error) {
+      // Don't retry validation errors
+      if (error instanceof ValidationError) {
+        throw error
+      }
+
+      // Last attempt - throw error
+      if (attempt === maxRetries) {
+        throw error
+      }
+
+      // Exponential backoff: 1s, 2s, 4s
+      const delay = Math.pow(2, attempt - 1) * 1000
+      await new Promise(resolve => setTimeout(resolve, delay))
+
+      console.log(`Retrying payment (attempt ${attempt + 1}/${maxRetries})...`)
+    }
+  }
+}
+```
+
+### Pattern 3: User-Friendly Error Messages
+
+```typescript
+function getUserFriendlyError(error: Error): string {
+  if (error instanceof UnsupportedCurrencyError) {
+    return `We don't support ${error.currency} yet. Please use ${error.availableCurrencies[0]}.`
+  }
+
+  if (error instanceof InvalidAmountError) {
+    const min = error.minAmount / 100
+    const max = error.maxAmount / 100
+    return `Amount must be between $${min} and $${max}`
+  }
+
+  if (error instanceof PaymentCreationError) {
+    // Check provider-specific codes
+    if (error.providerCode === 'card_declined') {
+      return 'Your card was declined. Please try a different payment method.'
+    }
+    if (error.providerCode === 'insufficient_funds') {
+      return 'Insufficient funds. Please use a different card.'
+    }
+    return 'Payment failed. Please try again or contact support.'
+  }
+
+  if (error instanceof PaymentNotRefundableError) {
+    if (error.reason === 'already_refunded') {
+      return 'This payment has already been refunded.'
+    }
+    if (error.reason === 'too_old') {
+      return 'This payment is too old to refund.'
+    }
+  }
+
+  return 'An error occurred. Please try again later.'
+}
+
+// Usage in API
+app.post('/payments', async (req, res) => {
+  try {
+    const result = await client.createPayment(req.body)
+    res.json(result)
+  } catch (error) {
+    res.status(400).json({
+      error: getUserFriendlyError(error)
+    })
+  }
+})
+```
+
+### Pattern 4: Structured Error Logging
+
+```typescript
+async function logError(error: Error, context: Record<string, unknown>) {
+  if (error instanceof UniPayError) {
+    await logger.error({
+      errorCode: error.code,
+      errorName: error.name,
+      message: error.message,
+      provider: error.provider,
+      providerCode: error.providerCode,
+      metadata: error.metadata,
+      context,
+      timestamp: new Date().toISOString()
+    })
+
+    // Alert on critical errors
+    if (error instanceof PaymentCreationError) {
+      await alertMonitoring({
+        severity: 'HIGH',
+        message: `Payment creation failed: ${error.provider}`,
+        error: error.toJSON()
+      })
+    }
+  } else {
+    await logger.error({
+      errorName: error.name,
+      message: error.message,
+      stack: error.stack,
+      context,
+      timestamp: new Date().toISOString()
+    })
+  }
+}
+
+// Usage
+try {
+  await client.createPayment(input)
+} catch (error) {
+  await logError(error, { userId, orderId, input })
+  throw error
+}
+```
+
+### Pattern 5: Error Recovery
+
+```typescript
+async function handlePaymentError(
+  error: Error,
+  input: CreatePaymentInput
+): Promise<CreatePaymentResult> {
+  if (error instanceof UnsupportedCheckoutModeError) {
+    // Fallback to hosted checkout
+    console.log('SDK checkout not supported, falling back to hosted')
+    return await client.createPayment({
+      ...input,
+      preferredCheckoutMode: 'hosted'
+    })
+  }
+
+  if (error instanceof NoProviderAvailableError) {
+    // Try again after delay
+    console.log('No provider available, retrying in 5s...')
+    await new Promise(resolve => setTimeout(resolve, 5000))
+    return await client.createPayment(input)
+  }
+
+  // Can't recover
+  throw error
+}
+```
+
+## Testing Error Scenarios
+
+```typescript
+import { describe, it, expect } from 'vitest'
+
+describe('Error Handling', () => {
+  it('handles unsupported currency', async () => {
+    await expect(
+      client.createPayment({
+        money: { amount: 1000, currency: 'XYZ' }
+      })
+    ).rejects.toThrow(UnsupportedCurrencyError)
+  })
+
+  it('handles invalid amount', async () => {
+    await expect(
+      client.createPayment({
+        money: { amount: -1000, currency: 'USD' }
+      })
+    ).rejects.toThrow(InvalidAmountError)
+  })
+
+  it('handles payment not found', async () => {
+    await expect(
+      client.getPayment('stripe:invalid_id')
+    ).rejects.toThrow(PaymentNotFoundError)
+  })
+})
+```
+
+## Monitoring Errors
+
+Track error rates and patterns:
+
+```typescript
+const errorCounts: Map<string, number> = new Map()
+
+async function trackError(error: UniPayError) {
+  const key = `${error.provider}:${error.code}`
+  errorCounts.set(key, (errorCounts.get(key) || 0) + 1)
+
+  // Alert if error rate too high
+  if (errorCounts.get(key)! > 10) {
+    await alertAdmin({
+      message: `High error rate: ${key}`,
+      count: errorCounts.get(key),
+      severity: 'HIGH'
+    })
+  }
+}
+```
+
+## Next Steps
+
+- **[Testing →](/guides/testing)** - Test error scenarios
+- **[Production Checklist →](/guides/production)** - Error monitoring setup
+
+
+---

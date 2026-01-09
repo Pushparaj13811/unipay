@@ -1,0 +1,189 @@
+# Welcome to UniPay
+
+**UniPay** is a unified payment gateway abstraction layer for Node.js that provides a consistent, type-safe interface across multiple payment providers. Build once, integrate anywhere—without vendor lock-in.
+
+## Why UniPay?
+
+### The Problem
+
+Integrating payment gateways is challenging:
+
+- **Different APIs**: Each gateway has its own unique API structure and conventions
+- **Vendor Lock-in**: Switching providers requires rewriting your entire payment integration
+- **Complex Testing**: Managing multiple SDKs and test environments
+- **Maintenance Burden**: API changes from providers require constant updates
+- **Global Expansion**: Adding regional payment providers means starting from scratch
+
+### The Solution
+
+UniPay solves these problems by providing:
+
+```typescript
+// One API, multiple providers
+import { createPaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+import { RazorpayAdapter } from '@uniipay/adapter-razorpay'
+
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({ secretKey: process.env.STRIPE_SECRET_KEY }),
+    new RazorpayAdapter({
+      keyId: process.env.RAZORPAY_KEY_ID,
+      keySecret: process.env.RAZORPAY_KEY_SECRET
+    })
+  ],
+  resolutionStrategy: 'by-currency' // Auto-route by currency
+})
+
+// Create payment - routes automatically
+const result = await client.createPayment({
+  money: { amount: 10000, currency: 'INR' }, // ₹100 or $100
+  successUrl: 'https://example.com/success',
+  cancelUrl: 'https://example.com/cancel',
+  customer: { email: 'user@example.com' }
+})
+
+// Redirect user to checkout
+window.location.href = result.checkoutUrl
+```
+
+## Key Features
+
+### Unified API
+
+Single interface for all payment providers. Write once, support Stripe, Razorpay, PayU, and more.
+
+### Intelligent Routing
+
+Choose from 5 built-in routing strategies:
+- **By Currency**: Route INR to Razorpay, USD to Stripe
+- **By Amount**: Optimize costs based on transaction size
+- **Round Robin**: Distribute load across providers
+- **Custom Logic**: Implement your own routing rules
+
+### Type-Safe
+
+Full TypeScript support with discriminated unions and comprehensive type definitions. Catch errors at compile time.
+
+### Webhook Normalization
+
+Unified webhook events across all providers. Handle `PAYMENT_SUCCEEDED` the same way, regardless of the source.
+
+### Production-Ready
+
+- **Comprehensive Error Handling**: 20+ specific error types with provider context
+- **Thoroughly Tested**: Comprehensive test coverage across all providers
+- **Idempotency Support**: Prevent duplicate payments
+- **Metadata Support**: Store custom data with payments
+
+### Multi-Gateway Support
+
+#### Current Adapters
+- **Stripe**: 135+ currencies, cards, wallets, subscriptions
+- **Razorpay**: UPI, cards, net banking, wallets (India-focused)
+
+#### Coming Soon
+- PayU, PayPal, PhonePe, Cashfree
+
+## Quick Example
+
+### Create a Payment
+
+```typescript
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' }, // $50.00
+  successUrl: 'https://example.com/success',
+  cancelUrl: 'https://example.com/cancel',
+  customer: {
+    email: 'customer@example.com',
+    name: 'John Doe'
+  },
+  description: 'Premium subscription',
+  metadata: { orderId: 'ORD-12345' }
+})
+
+// result.checkoutUrl: 'https://checkout.stripe.com/...'
+```
+
+### Handle Webhooks
+
+```typescript
+const event = await client.handleWebhook(provider, {
+  rawBody: request.body,
+  headers: request.headers
+})
+
+switch (event.eventType) {
+  case 'PAYMENT_SUCCEEDED':
+    await fulfillOrder(event.payload.metadata.orderId)
+    break
+  case 'PAYMENT_FAILED':
+    await notifyCustomer(event.payload.failureReason)
+    break
+}
+```
+
+### Process Refunds
+
+```typescript
+// Full refund
+await client.createRefund('stripe:pi_abc123')
+
+// Partial refund
+await client.createRefund('razorpay:order_XYZ', {
+  amount: 2500, // ₹25
+  reason: 'Partial cancellation'
+})
+```
+
+## How It Works
+
+UniPay sits between your application and payment providers, automatically routing requests and normalizing responses. You write code once, and UniPay handles the provider-specific details.
+
+## Supported Payment Methods
+
+### Stripe
+- Credit/Debit Cards (Visa, Mastercard, Amex)
+- Apple Pay
+- Google Pay
+- ACH, SEPA
+- Subscriptions
+
+### Razorpay
+- Credit/Debit Cards
+- UPI (Google Pay, PhonePe, BHIM, Paytm)
+- Net Banking (60+ banks)
+- Wallets (Paytm, PhonePe, Mobikwik)
+- EMI/Installments
+- Cash on Delivery
+
+## What's Next?
+
+<div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '2rem 0'}}>
+  <a href="/getting-started/installation" style={{padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem', textDecoration: 'none'}}>
+    <h3 style={{margin: '0 0 0.5rem 0'}}>Installation</h3>
+    <p style={{margin: 0, color: '#6b7280'}}>Get started with UniPay in under 5 minutes</p>
+  </a>
+
+  <a href="/getting-started/basic-usage" style={{padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem', textDecoration: 'none'}}>
+    <h3 style={{margin: '0 0 0.5rem 0'}}>Quick Start</h3>
+    <p style={{margin: 0, color: '#6b7280'}}>Create your first payment</p>
+  </a>
+
+  <a href="/core-concepts/routing-strategies" style={{padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem', textDecoration: 'none'}}>
+    <h3 style={{margin: '0 0 0.5rem 0'}}>Routing Strategies</h3>
+    <p style={{margin: 0, color: '#6b7280'}}>Learn intelligent payment routing</p>
+  </a>
+</div>
+
+## Community & Support
+
+- **GitHub**: [Pushparaj13811/unipay](https://github.com/Pushparaj13811/unipay)
+- **Issues**: [Report bugs or request features](https://github.com/Pushparaj13811/unipay/issues)
+- **License**: MIT
+
+---
+
+<div style={{padding: '1rem', background: '#f3f4f6', borderRadius: '0.5rem', marginTop: '2rem', color: '#1f2937'}}>
+  <strong>Pro Tip:</strong> Start with a single provider (Stripe or Razorpay) to learn the basics, then add more providers and enable intelligent routing as you scale globally.
+</div>

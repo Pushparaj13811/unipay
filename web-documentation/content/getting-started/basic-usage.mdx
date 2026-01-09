@@ -1,0 +1,487 @@
+# Basic Usage
+
+Learn how to create your first payment with UniPay in just a few lines of code. This guide covers the essential payment flow from creating a client to handling successful payments.
+
+## Your First Payment
+
+Let's create a simple payment flow with Stripe. The same code works for any provider—just swap the adapter!
+
+### Step 1: Initialize the Client
+
+```typescript
+import { createPaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({
+      secretKey: process.env.STRIPE_SECRET_KEY!
+    })
+  ]
+})
+```
+
+### Step 2: Create a Payment
+
+```typescript
+const result = await client.createPayment({
+  money: {
+    amount: 5000,      // $50.00 (amount in smallest currency unit - cents)
+    currency: 'USD'
+  },
+  successUrl: 'https://your-site.com/success',
+  cancelUrl: 'https://your-site.com/cancel',
+  customer: {
+    email: 'customer@example.com',
+    name: 'John Doe'
+  },
+  description: 'Premium Plan Subscription',
+  metadata: {
+    orderId: 'ORD-12345',
+    userId: 'user_456'
+  }
+})
+```
+
+### Step 3: Redirect to Checkout
+
+```typescript
+if (result.checkoutMode === 'hosted') {
+  // Redirect user to payment provider's checkout page
+  window.location.href = result.checkoutUrl
+
+  // Or return the URL to your frontend
+  res.json({ checkoutUrl: result.checkoutUrl })
+}
+```
+
+### Step 4: Handle Success
+
+After payment, the user returns to your `successUrl`. Verify the payment:
+
+```typescript
+// On your success page
+const unipayId = searchParams.get('unipayId') // Get from URL or your database
+
+const payment = await client.getPayment(unipayId)
+
+if (payment.status === 'SUCCEEDED') {
+  // Payment successful! Fulfill the order
+  await fulfillOrder(payment.metadata.orderId)
+}
+```
+
+## Complete Example
+
+Here's a complete Express.js example:
+
+```typescript
+import express from 'express'
+import { createPaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+
+const app = express()
+app.use(express.json())
+
+// Initialize client
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({ secretKey: process.env.STRIPE_SECRET_KEY! })
+  ]
+})
+
+// Create payment endpoint
+app.post('/api/create-payment', async (req, res) => {
+  try {
+    const { amount, currency, email } = req.body
+
+    const result = await client.createPayment({
+      money: { amount, currency },
+      successUrl: `${process.env.APP_URL}/success`,
+      cancelUrl: `${process.env.APP_URL}/cancel`,
+      customer: { email },
+      metadata: { source: 'web' }
+    })
+
+    res.json({
+      unipayId: result.unipayId,
+      checkoutUrl: result.checkoutUrl
+    })
+  } catch (error) {
+    console.error('Payment creation failed:', error)
+    res.status(500).json({ error: 'Failed to create payment' })
+  }
+})
+
+// Success page
+app.get('/success', async (req, res) => {
+  try {
+    const unipayId = req.query.unipayId as string
+
+    const payment = await client.getPayment(unipayId)
+
+    if (payment.status === 'SUCCEEDED') {
+      res.send(`
+        <h1>Payment Successful!</h1>
+        <p>Payment ID: ${payment.unipayId}</p>
+        <p>Amount: ${payment.money.amount / 100} ${payment.money.currency}</p>
+      `)
+    } else {
+      res.send(`<h1>Payment Status: ${payment.status}</h1>`)
+    }
+  } catch (error) {
+    res.status(500).send('Error verifying payment')
+  }
+})
+
+// Cancel page
+app.get('/cancel', (req, res) => {
+  res.send('<h1>Payment Cancelled</h1><a href="/">Try Again</a>')
+})
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000')
+})
+```
+
+## Understanding Payment Amounts
+
+UniPay uses the **smallest currency unit** for all amounts (cents, paise, etc.):
+
+```typescript
+// USD - use cents
+{ amount: 5000, currency: 'USD' }  // $50.00
+
+// EUR - use cents
+{ amount: 2500, currency: 'EUR' }  // €25.00
+
+// INR - use paise
+{ amount: 10000, currency: 'INR' } // ₹100.00
+
+// JPY - use yen (no decimal)
+{ amount: 1000, currency: 'JPY' }  // ¥1000
+```
+
+### Helper Function
+
+```typescript
+function toSmallestUnit(amount: number, currency: string): number {
+  // Currencies without decimal places
+  const zeroDecimalCurrencies = ['JPY', 'KRW', 'VND', 'CLP']
+
+  if (zeroDecimalCurrencies.includes(currency.toUpperCase())) {
+    return Math.round(amount)
+  }
+
+  return Math.round(amount * 100)
+}
+
+// Usage
+const amount = toSmallestUnit(50.00, 'USD')  // 5000
+```
+
+## Checkout Modes
+
+UniPay supports two checkout modes:
+
+### 1. Hosted Checkout (Recommended)
+
+User is redirected to the payment provider's secure checkout page.
+
+```typescript
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' },
+  successUrl: 'https://example.com/success',
+  cancelUrl: 'https://example.com/cancel',
+  customer: { email: 'user@example.com' }
+  // preferredCheckoutMode: 'hosted' is default
+})
+
+// Redirect user
+window.location.href = result.checkoutUrl
+```
+
+**Pros**:
+- ✅ PCI compliance handled by provider
+- ✅ No frontend integration needed
+- ✅ Provider's optimized UI
+- ✅ Multiple payment methods
+
+**Cons**:
+- ❌ User leaves your site
+- ❌ Less customization
+
+### 2. SDK Checkout (Advanced)
+
+Integrate payment UI directly into your site using provider SDKs.
+
+```typescript
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' },
+  customer: { email: 'user@example.com' },
+  preferredCheckoutMode: 'sdk'
+})
+
+if (result.checkoutMode === 'sdk') {
+  // Use provider's SDK on frontend
+  const { clientSecret, orderId } = result.sdkPayload
+
+  // For Stripe
+  stripe.confirmCardPayment(clientSecret)
+
+  // For Razorpay
+  Razorpay.open({ orderId })
+}
+```
+
+**Pros**:
+- ✅ User stays on your site
+- ✅ Custom UI
+- ✅ Better conversion
+
+**Cons**:
+- ❌ Requires frontend integration
+- ❌ More complex setup
+- ❌ PCI compliance considerations
+
+## Retrieving Payments
+
+Use the payment ID returned from `createPayment()`:
+
+```typescript
+// Store this ID when creating payment
+const result = await client.createPayment({ /* ... */ })
+const paymentId = result.unipayId
+
+// Later, retrieve the payment
+const payment = await client.getPayment(paymentId)
+
+console.log(payment.status)        // 'SUCCEEDED'
+console.log(payment.money)         // { amount: 5000, currency: 'USD' }
+console.log(payment.customer.email) // 'user@example.com'
+console.log(payment.metadata)      // { orderId: 'ORD-12345' }
+```
+
+## Payment Statuses
+
+UniPay normalizes all provider statuses to these values:
+
+| Status | Meaning | Next Action |
+|--------|---------|-------------|
+| `CREATED` | Payment session created | Redirect user to checkout |
+| `PENDING` | Payment initiated, awaiting confirmation | Wait for webhook |
+| `REQUIRES_ACTION` | Needs user action (3DS, etc.) | User completes action |
+| `PROCESSING` | Payment being processed | Wait for webhook |
+| `SUCCEEDED` | ✅ Payment successful | Fulfill order |
+| `FAILED` | ❌ Payment failed | Show error, allow retry |
+| `CANCELLED` | User cancelled | Allow retry |
+| `EXPIRED` | Session expired | Create new payment |
+
+### Checking Status
+
+```typescript
+const payment = await client.getPayment(unipayId)
+
+switch (payment.status) {
+  case 'SUCCEEDED':
+    await fulfillOrder()
+    break
+
+  case 'FAILED':
+    console.error('Failure reason:', payment.failureReason)
+    console.error('Failure code:', payment.failureCode)
+    break
+
+  case 'REQUIRES_ACTION':
+    // Redirect back to checkout or show 3DS challenge
+    break
+
+  default:
+    // Handle other statuses
+}
+```
+
+## Using Metadata
+
+Store custom data with payments for easy reference:
+
+```typescript
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' },
+  successUrl: 'https://example.com/success',
+  cancelUrl: 'https://example.com/cancel',
+  customer: { email: 'user@example.com' },
+  metadata: {
+    orderId: 'ORD-12345',
+    userId: 'user_456',
+    plan: 'premium',
+    referralCode: 'FRIEND20'
+  }
+})
+
+// Later, retrieve payment
+const payment = await client.getPayment(result.unipayId)
+console.log(payment.metadata.orderId) // 'ORD-12345'
+```
+
+**Metadata Limits**:
+- **Keys**: Up to 50
+- **Key length**: Max 40 characters
+- **Value length**: Max 500 characters
+- **Total size**: ~8KB
+
+## Idempotency
+
+Prevent duplicate payments by providing an idempotency key:
+
+```typescript
+const idempotencyKey = `payment-${userId}-${Date.now()}`
+
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' },
+  successUrl: 'https://example.com/success',
+  cancelUrl: 'https://example.com/cancel',
+  customer: { email: 'user@example.com' },
+  idempotencyKey
+})
+
+// If called again with same key within 24 hours,
+// returns the original payment (no duplicate charge)
+```
+
+**Best Practices**:
+- Generate unique keys per transaction
+- Include user ID and timestamp
+- Store keys in your database
+- Keys valid for 24 hours
+
+## Error Handling
+
+```typescript
+import {
+  PaymentCreationError,
+  UnsupportedCurrencyError,
+  ValidationError
+} from '@uniipay/orchestrator'
+
+try {
+  const result = await client.createPayment({
+    money: { amount: 5000, currency: 'USD' },
+    successUrl: 'https://example.com/success',
+    cancelUrl: 'https://example.com/cancel',
+    customer: { email: 'user@example.com' }
+  })
+} catch (error) {
+  if (error instanceof UnsupportedCurrencyError) {
+    console.error(`Currency ${error.currency} not supported`)
+    console.error(`Available currencies:`, error.availableCurrencies)
+  } else if (error instanceof PaymentCreationError) {
+    console.error(`Payment failed on ${error.provider}`)
+    console.error(`Provider error:`, error.providerCode)
+  } else if (error instanceof ValidationError) {
+    console.error(`Invalid input: ${error.message}`)
+  } else {
+    console.error('Unexpected error:', error)
+  }
+}
+```
+
+## Multi-Currency Support
+
+UniPay automatically handles currency routing:
+
+```typescript
+const client = createPaymentClient({
+  adapters: [
+    new RazorpayAdapter({ /* config */ }), // Supports INR
+    new StripeAdapter({ /* config */ })    // Supports 135+ currencies
+  ],
+  resolutionStrategy: 'by-currency'
+})
+
+// Automatically routes to Razorpay
+await client.createPayment({
+  money: { amount: 10000, currency: 'INR' }
+  // ...
+})
+
+// Automatically routes to Stripe
+await client.createPayment({
+  money: { amount: 5000, currency: 'USD' }
+  // ...
+})
+```
+
+## Next Steps
+
+Now that you understand basic payments, explore:
+
+1. **[Routing Strategies →](/core-concepts/routing-strategies)** - Route payments intelligently
+2. **[Webhook Handling →](/webhooks/setup)** - Handle payment events
+3. **[Refunds →](/features/refunds)** - Process refunds
+4. **[API Reference →](/api-reference/payment-client)** - Complete API documentation
+
+## Common Patterns
+
+### Save Payment ID to Database
+
+```typescript
+const result = await client.createPayment({ /* ... */ })
+
+// Save to database
+await db.orders.update(orderId, {
+  unipayId: result.unipayId,
+  checkoutUrl: result.checkoutUrl,
+  status: 'PENDING'
+})
+
+// Redirect user
+res.redirect(result.checkoutUrl)
+```
+
+### Retry Failed Payments
+
+```typescript
+async function retryPayment(originalUnipayId: string) {
+  const originalPayment = await client.getPayment(originalUnipayId)
+
+  if (originalPayment.status === 'FAILED') {
+    // Create new payment with same details
+    return client.createPayment({
+      money: originalPayment.money,
+      successUrl: originalPayment.successUrl,
+      cancelUrl: originalPayment.cancelUrl,
+      customer: originalPayment.customer,
+      metadata: {
+        ...originalPayment.metadata,
+        retryOf: originalUnipayId
+      }
+    })
+  }
+}
+```
+
+### Expiry Handling
+
+```typescript
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' },
+  successUrl: 'https://example.com/success',
+  cancelUrl: 'https://example.com/cancel',
+  customer: { email: 'user@example.com' },
+  expiresInSeconds: 1800 // 30 minutes
+})
+
+console.log('Expires at:', result.expiresAt)
+
+// Check if expired
+if (result.expiresAt && new Date() > result.expiresAt) {
+  console.log('Payment link expired, create new one')
+}
+```
+
+---
+
+<div style={{padding: '1rem', background: '#f0f9ff', border: '1px solid #0ea5e9', borderRadius: '0.5rem', marginTop: '2rem', color: '#0c4a6e'}}>
+  <strong>Best Practice:</strong> Always verify payment status on your server using webhooks or by calling <code>getPayment()</code> before fulfilling orders. Never rely solely on redirect URLs.
+</div>

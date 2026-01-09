@@ -1,0 +1,628 @@
+# Routing Strategies
+
+One of UniPay's most powerful features is **intelligent payment routing**. Instead of hardcoding which payment provider to use, let UniPay automatically route payments based on currency, amount, load distribution, or custom logic.
+
+## Why Routing Matters
+
+Different payment providers have different strengths:
+
+- **Razorpay** excels in India with UPI, net banking, and local wallets
+- **Stripe** dominates globally with 135+ currencies
+- **PayU** may have better rates for high-value transactions
+- **Regional providers** often have lower fees in specific markets
+
+Routing lets you:
+- ✅ **Optimize costs** by using cheaper providers for certain transactions
+- ✅ **Improve success rates** by using providers optimized for specific regions
+- ✅ **Load balance** across multiple accounts to avoid rate limits
+- ✅ **Failover** to backup providers if primary fails
+- ✅ **A/B test** different providers
+
+## Overview of Strategies
+
+UniPay provides 5 built-in routing strategies:
+
+| Strategy | Use Case | Configuration Needed |
+|----------|----------|---------------------|
+| **first-available** | Simple single-provider setup | Optional `defaultProvider` |
+| **round-robin** | Load balancing, distributing API calls | None |
+| **by-currency** | Multi-region business | None (automatic) |
+| **by-amount** | Cost optimization by transaction size | `amountRoutes` array |
+| **custom** | Complex business logic | `customResolver` function |
+
+## Strategy 1: First Available
+
+The simplest strategy—uses the first registered adapter (or specified default provider).
+
+### Configuration
+
+```typescript
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+import { RazorpayAdapter } from '@uniipay/adapter-razorpay'
+
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({ secretKey: process.env.STRIPE_SECRET_KEY! }),
+    new RazorpayAdapter({
+      keyId: process.env.RAZORPAY_KEY_ID!,
+      keySecret: process.env.RAZORPAY_KEY_SECRET!
+    })
+  ],
+  resolutionStrategy: 'first-available',
+  defaultProvider: PaymentProvider.STRIPE // Optional: specify default
+})
+
+// All payments use Stripe (the default provider)
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' },
+  // ...
+})
+```
+
+### When to Use
+
+- ✅ Starting with a single provider
+- ✅ Testing before enabling routing
+- ✅ You have a clear primary provider
+- ❌ Multi-currency or multi-region business
+- ❌ Need cost optimization
+
+## Strategy 2: Round Robin
+
+Distributes payments evenly across all adapters in rotation.
+
+### Configuration
+
+```typescript
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({ secretKey: process.env.STRIPE_SECRET_KEY! }),
+    new RazorpayAdapter({
+      keyId: process.env.RAZORPAY_KEY_ID!,
+      keySecret: process.env.RAZORPAY_KEY_SECRET!
+    })
+  ],
+  resolutionStrategy: 'round-robin'
+})
+
+// Payment 1 → Stripe
+await client.createPayment({ money: { amount: 5000, currency: 'USD' } })
+
+// Payment 2 → Razorpay
+await client.createPayment({ money: { amount: 10000, currency: 'INR' } })
+
+// Payment 3 → Stripe
+await client.createPayment({ money: { amount: 3000, currency: 'EUR' } })
+
+// Payment 4 → Razorpay
+await client.createPayment({ money: { amount: 8000, currency: 'INR' } })
+```
+
+### How It Works
+
+Automatically distributes payments evenly across all configured providers. Each payment alternates to the next provider in sequence.
+
+### When to Use
+
+- ✅ Load balancing across multiple accounts
+- ✅ Avoiding rate limits on a single provider
+- ✅ A/B testing provider performance
+- ✅ Distributing risk
+- ❌ Currency-specific routing needed
+- ❌ Cost optimization important
+
+### Considerations
+
+- Ignores currency support—may route INR to Stripe
+- Best combined with validation or per-request provider override
+- State is per-client instance (resets on restart)
+
+## Strategy 3: By Currency
+
+**Automatically routes based on currency support**. The first adapter that supports the requested currency is selected.
+
+### Configuration
+
+```typescript
+const client = createPaymentClient({
+  adapters: [
+    new RazorpayAdapter({
+      keyId: process.env.RAZORPAY_KEY_ID!,
+      keySecret: process.env.RAZORPAY_KEY_SECRET!
+    }), // Supports INR + 17 others
+    new StripeAdapter({
+      secretKey: process.env.STRIPE_SECRET_KEY!
+    })  // Supports 135+ currencies
+  ],
+  resolutionStrategy: 'by-currency'
+})
+
+// Automatically routes to Razorpay (first to support INR)
+await client.createPayment({
+  money: { amount: 10000, currency: 'INR' }
+  // ...
+})
+
+// Automatically routes to Razorpay (supports SGD)
+await client.createPayment({
+  money: { amount: 5000, currency: 'SGD' }
+  // ...
+})
+
+// Automatically routes to Stripe (Razorpay doesn't support JPY)
+await client.createPayment({
+  money: { amount: 1000, currency: 'JPY' }
+  // ...
+})
+```
+
+### Currency Support by Provider
+
+| Currency | Razorpay | Stripe | Selected Provider |
+|----------|----------|--------|-------------------|
+| INR      | ✅       | ✅     | Razorpay (first) |
+| USD      | ✅       | ✅     | Razorpay (first) |
+| EUR      | ✅       | ✅     | Razorpay (first) |
+| SGD      | ✅       | ✅     | Razorpay (first) |
+| JPY      | ❌       | ✅     | Stripe (only option) |
+| THB      | ❌       | ✅     | Stripe (only option) |
+
+### Order Matters!
+
+```typescript
+// Order 1: Razorpay first
+const client1 = createPaymentClient({
+  adapters: [razorpayAdapter, stripeAdapter],
+  resolutionStrategy: 'by-currency'
+})
+// INR → Razorpay (with UPI, net banking)
+
+// Order 2: Stripe first
+const client2 = createPaymentClient({
+  adapters: [stripeAdapter, razorpayAdapter],
+  resolutionStrategy: 'by-currency'
+})
+// INR → Stripe (cards only, no UPI)
+```
+
+### When to Use
+
+- ✅ **Multi-region/multi-currency business** (MOST COMMON)
+- ✅ Want region-optimized providers
+- ✅ Different providers for different markets
+- ✅ Simplicity—no configuration needed
+- ❌ Need cost-based routing
+- ❌ Complex logic beyond currency
+
+### Error Handling
+
+```typescript
+import { UnsupportedCurrencyError } from '@uniipay/orchestrator'
+
+try {
+  await client.createPayment({
+    money: { amount: 1000, currency: 'XYZ' } // Invalid currency
+    // ...
+  })
+} catch (error) {
+  if (error instanceof UnsupportedCurrencyError) {
+    console.error(`Currency ${error.currency} not supported by any provider`)
+    console.error(`Available: ${error.availableCurrencies.join(', ')}`)
+  }
+}
+```
+
+## Strategy 4: By Amount
+
+Routes based on transaction amount ranges—perfect for **cost optimization**.
+
+### Configuration
+
+```typescript
+import { PaymentProvider } from '@uniipay/orchestrator'
+
+const client = createPaymentClient({
+  adapters: [razorpayAdapter, payuAdapter, stripeAdapter],
+  resolutionStrategy: 'by-amount',
+  amountRoutes: [
+    // Small INR transactions → Razorpay (lower fees)
+    {
+      currency: 'INR',
+      maxAmount: 100000, // ₹1,000
+      provider: PaymentProvider.RAZORPAY
+    },
+    // Medium INR transactions → PayU (better rates)
+    {
+      currency: 'INR',
+      maxAmount: 1000000, // ₹10,000
+      provider: PaymentProvider.PAYU
+    },
+    // Large INR transactions → Stripe (negotiated rates)
+    {
+      currency: 'INR',
+      maxAmount: Infinity,
+      provider: PaymentProvider.STRIPE
+    },
+    // All USD → Stripe
+    {
+      currency: 'USD',
+      maxAmount: Infinity,
+      provider: PaymentProvider.STRIPE
+    }
+  ]
+})
+```
+
+### Routing Logic
+
+```typescript
+// ₹500 (50000 paise) → Razorpay (< 100000)
+await client.createPayment({
+  money: { amount: 50000, currency: 'INR' }
+})
+
+// ₹5,000 (500000 paise) → PayU (100000-1000000)
+await client.createPayment({
+  money: { amount: 500000, currency: 'INR' }
+})
+
+// ₹15,000 (1500000 paise) → Stripe (> 1000000)
+await client.createPayment({
+  money: { amount: 1500000, currency: 'INR' }
+})
+
+// $100 → Stripe (USD always routes to Stripe)
+await client.createPayment({
+  money: { amount: 10000, currency: 'USD' }
+})
+```
+
+### Real-World Example: Optimizing Fees
+
+```typescript
+// Scenario: Your fee structure
+// Razorpay: 2% (best for small txns)
+// PayU: 1.5% (best for medium txns)
+// Stripe: 1% negotiated rate (best for large txns)
+
+const client = createPaymentClient({
+  adapters: [razorpayAdapter, payuAdapter, stripeAdapter],
+  resolutionStrategy: 'by-amount',
+  amountRoutes: [
+    // ₹0-₹2,000: Use Razorpay
+    { currency: 'INR', maxAmount: 200000, provider: PaymentProvider.RAZORPAY },
+    // ₹2,001-₹10,000: Use PayU
+    { currency: 'INR', maxAmount: 1000000, provider: PaymentProvider.PAYU },
+    // ₹10,001+: Use Stripe
+    { currency: 'INR', maxAmount: Infinity, provider: PaymentProvider.STRIPE }
+  ]
+})
+
+// Transaction of ₹1,500 → Razorpay (2% fee = ₹30)
+// Transaction of ₹5,000 → PayU (1.5% fee = ₹75)
+// Transaction of ₹50,000 → Stripe (1% fee = ₹500)
+```
+
+### When to Use
+
+- ✅ **Cost optimization** by transaction size
+- ✅ Different fee structures with providers
+- ✅ Negotiated rates for large transactions
+- ✅ Risk management (high-value txns to trusted provider)
+- ❌ Simple single-provider setup
+- ❌ Currency routing sufficient
+
+### Important Notes
+
+- Routes must be **ordered from smallest to largest** `maxAmount`
+- **Must cover all amounts** (use `Infinity` for last route)
+- **One route per currency** can have `maxAmount: Infinity`
+- Falls back to first-available if currency not in routes
+
+## Strategy 5: Custom
+
+Implement **any routing logic** you need with a custom resolver function.
+
+### Configuration
+
+```typescript
+type ProviderResolver = (
+  input: CreatePaymentInput,
+  availableProviders: PaymentProvider[]
+) => PaymentProvider
+
+const client = createPaymentClient({
+  adapters: [stripeAdapter, razorpayAdapter, payuAdapter],
+  resolutionStrategy: 'custom',
+  customResolver: (input, providers) => {
+    // Example 1: Route by customer region
+    if (input.metadata?.region === 'india') {
+      return PaymentProvider.RAZORPAY
+    }
+
+    // Example 2: Route by customer tier
+    if (input.metadata?.tier === 'premium') {
+      return PaymentProvider.STRIPE // Premium support
+    }
+
+    // Example 3: Route by time of day (load balancing)
+    const hour = new Date().getHours()
+    if (hour >= 9 && hour < 17) {
+      return PaymentProvider.RAZORPAY // Business hours
+    }
+
+    // Example 4: Route by currency + amount combo
+    if (input.money.currency === 'INR' && input.money.amount < 100000) {
+      return PaymentProvider.RAZORPAY
+    }
+
+    // Default fallback
+    return PaymentProvider.STRIPE
+  }
+})
+```
+
+### Advanced Examples
+
+#### Example 1: A/B Testing
+
+```typescript
+customResolver: (input, providers) => {
+  // Hash email to deterministically assign provider
+  const hash = simpleHash(input.customer?.email || '')
+  const providerIndex = hash % providers.length
+
+  return providers[providerIndex]
+}
+
+function simpleHash(str: string): number {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i)
+  }
+  return Math.abs(hash)
+}
+```
+
+#### Example 2: Geo-based Routing
+
+```typescript
+customResolver: (input, providers) => {
+  const country = input.customer?.billingAddress?.country
+
+  // Route by country
+  switch (country) {
+    case 'IN': return PaymentProvider.RAZORPAY
+    case 'US':
+    case 'CA': return PaymentProvider.STRIPE
+    case 'SG':
+    case 'MY': return PaymentProvider.PAYU
+    default: return PaymentProvider.STRIPE
+  }
+}
+```
+
+#### Example 3: Feature-based Routing
+
+```typescript
+customResolver: (input, providers) => {
+  // If customer wants UPI, must use Razorpay
+  if (input.metadata?.paymentMethod === 'upi') {
+    return PaymentProvider.RAZORPAY
+  }
+
+  // If subscription, use Stripe (better subscription support)
+  if (input.metadata?.type === 'subscription') {
+    return PaymentProvider.STRIPE
+  }
+
+  // Default to by-currency logic
+  if (input.money.currency === 'INR') {
+    return PaymentProvider.RAZORPAY
+  }
+
+  return PaymentProvider.STRIPE
+}
+```
+
+#### Example 4: Failover Logic
+
+```typescript
+let razorpayHealthy = true
+
+customResolver: (input, providers) => {
+  // Try Razorpay for INR if healthy
+  if (input.money.currency === 'INR' && razorpayHealthy) {
+    return PaymentProvider.RAZORPAY
+  }
+
+  // Failover to Stripe
+  return PaymentProvider.STRIPE
+}
+
+// Monitor health (pseudocode)
+setInterval(async () => {
+  try {
+    await razorpayAdapter.healthCheck()
+    razorpayHealthy = true
+  } catch {
+    razorpayHealthy = false
+  }
+}, 60000)
+```
+
+### When to Use
+
+- ✅ Complex business logic
+- ✅ Multiple routing factors
+- ✅ A/B testing
+- ✅ Machine learning-based routing
+- ✅ Dynamic routing based on external data
+- ❌ Simple use cases (use built-in strategies)
+
+## Per-Request Override
+
+**Override routing for specific payments**:
+
+```typescript
+// Global strategy: by-currency
+const client = createPaymentClient({
+  adapters: [razorpayAdapter, stripeAdapter],
+  resolutionStrategy: 'by-currency'
+})
+
+// Normal payment → routes by currency
+await client.createPayment({
+  money: { amount: 10000, currency: 'INR' }
+  // → Routes to Razorpay
+})
+
+// Force specific provider for this payment
+await client.createPayment(
+  {
+    money: { amount: 10000, currency: 'INR' }
+  },
+  {
+    provider: PaymentProvider.STRIPE // Override: use Stripe
+  }
+)
+```
+
+### Use Cases for Override
+
+- Admin-initiated payments
+- Testing specific providers
+- Customer-selected payment method
+- Retry with different provider after failure
+
+## Combining Strategies
+
+While you can only set one `resolutionStrategy`, you can **combine logic in a custom resolver**:
+
+```typescript
+customResolver: (input, providers) => {
+  // Step 1: Filter by currency support
+  const currencyProviders = providers.filter(provider => {
+    const caps = client.getProviderCapabilities(provider)
+    return caps?.supportedCurrencies.includes(input.money.currency)
+  })
+
+  if (currencyProviders.length === 0) {
+    throw new UnsupportedCurrencyError(input.money.currency, providers)
+  }
+
+  // Step 2: Apply amount-based routing
+  if (input.money.currency === 'INR') {
+    if (input.money.amount < 100000) return PaymentProvider.RAZORPAY
+    if (input.money.amount < 1000000) return PaymentProvider.PAYU
+    return PaymentProvider.STRIPE
+  }
+
+  // Step 3: Round-robin for others
+  const index = getNextIndex() % currencyProviders.length
+  return currencyProviders[index]
+}
+```
+
+## Best Practices
+
+### 1. Start Simple, Then Optimize
+
+```typescript
+// Phase 1: Single provider
+resolutionStrategy: 'first-available'
+
+// Phase 2: Add multi-currency
+resolutionStrategy: 'by-currency'
+
+// Phase 3: Optimize costs
+resolutionStrategy: 'by-amount'
+
+// Phase 4: Complex logic
+resolutionStrategy: 'custom'
+```
+
+### 2. Monitor Provider Performance
+
+```typescript
+// Track success rates per provider
+async function trackPayment(provider: PaymentProvider, success: boolean) {
+  await analytics.track({
+    event: 'payment_attempt',
+    provider,
+    success,
+    timestamp: new Date()
+  })
+}
+
+// Adjust routing based on data
+customResolver: (input, providers) => {
+  const providerStats = getProviderStats(input.money.currency)
+
+  // Use provider with highest success rate
+  return providerStats.bestProvider
+}
+```
+
+### 3. Have Fallbacks
+
+```typescript
+customResolver: (input, providers) => {
+  try {
+    // Try optimal provider
+    return getOptimalProvider(input)
+  } catch (error) {
+    // Fallback to first available
+    return providers[0]
+  }
+}
+```
+
+### 4. Test Routing Logic
+
+```typescript
+// Unit test your routing
+describe('Custom Routing', () => {
+  it('routes INR to Razorpay', () => {
+    const provider = customResolver(
+      { money: { amount: 10000, currency: 'INR' } },
+      [PaymentProvider.RAZORPAY, PaymentProvider.STRIPE]
+    )
+    expect(provider).toBe(PaymentProvider.RAZORPAY)
+  })
+
+  it('routes high-value USD to Stripe', () => {
+    const provider = customResolver(
+      { money: { amount: 1000000, currency: 'USD' } },
+      [PaymentProvider.RAZORPAY, PaymentProvider.STRIPE]
+    )
+    expect(provider).toBe(PaymentProvider.STRIPE)
+  })
+})
+```
+
+## Debugging Routing
+
+Check which provider was selected:
+
+```typescript
+const result = await client.createPayment({
+  money: { amount: 10000, currency: 'INR' },
+  // ...
+})
+
+console.log('Selected provider:', result.provider)
+console.log('UniPay ID:', result.unipayId) // Includes provider prefix
+// Example: "razorpay:order_abc123"
+```
+
+---
+
+## Next Steps
+
+- **[Payment Adapters →](/adapters/overview)** - Learn about available providers
+
+<div style={{padding: '1rem', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: '0.5rem', marginTop: '2rem', color: '#78350f'}}>
+  <strong>Performance Tip:</strong> The <code>by-currency</code> strategy is the fastest built-in option. Custom resolvers add minimal overhead (~1ms), but avoid complex async operations.
+</div>
