@@ -1,0 +1,80 @@
+# Payment Adapters
+
+UniPay adapters wrap payment provider SDKs into a unified interface.
+
+## Available Adapters
+
+| Adapter | Package | Provider | Region | Status |
+|---------|---------|----------|--------|--------|
+| **Stripe** | `@uniipay/adapter-stripe` | Stripe | Global | ✅ Stable |
+| **Razorpay** | `@uniipay/adapter-razorpay` | Razorpay | India | ✅ Stable |
+| PayU | `@uniipay/adapter-payu` | PayU | India | Coming Soon |
+| PayPal | `@uniipay/adapter-paypal` | PayPal | Global | Coming Soon |
+
+## Quick Comparison
+
+### Stripe
+
+- **Best for**: Global businesses, SaaS, subscriptions
+- **Currencies**: 135+ (USD, EUR, GBP, INR, JPY, etc.)
+- **Payment Methods**: Cards, Apple Pay, Google Pay, ACH, SEPA
+- **Checkout**: Hosted + SDK
+- **Refunds**: Full + Partial + Multiple
+- **Special Features**: Subscriptions, Connect, Radar
+
+### Razorpay
+
+- **Best for**: Indian businesses, UPI payments
+- **Currencies**: 18+ (INR primary, USD, EUR, GBP, SGD)
+- **Payment Methods**: UPI, Cards, Net Banking, Wallets, EMI
+- **Checkout**: Hosted (Payment Links) + SDK (Orders)
+- **Refunds**: Full + Partial + Multiple + Instant
+- **Special Features**: UPI, Instant refunds, QR codes
+
+## Installation
+
+```bash
+# Install adapter alongside orchestrator
+npm install @uniipay/orchestrator @uniipay/adapter-stripe
+npm install @uniipay/orchestrator @uniipay/adapter-razorpay
+```
+
+## Usage
+
+```typescript
+import { createPaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+import { RazorpayAdapter } from '@uniipay/adapter-razorpay'
+
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({
+      secretKey: process.env.STRIPE_SECRET_KEY!
+    }),
+    new RazorpayAdapter({
+      keyId: process.env.RAZORPAY_KEY_ID!,
+      keySecret: process.env.RAZORPAY_KEY_SECRET!
+    })
+  ]
+})
+```
+
+## Capabilities
+
+Check what each adapter supports:
+
+```typescript
+const caps = client.getProviderCapabilities('STRIPE')
+
+console.log(caps.capabilities)           // Set of AdapterCapability
+console.log(caps.supportedCurrencies)    // Array of currency codes
+console.log(caps.supportedPaymentMethods) // Array of payment methods
+console.log(caps.limits)                 // Min/max amounts
+```
+
+## Next Steps
+
+- **[Getting Started →](/getting-started/installation)** - Install and configure adapters
+- **[Routing Strategies →](/core-concepts/routing-strategies)** - Route between providers
+
+---

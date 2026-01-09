@@ -1,0 +1,166 @@
+# Testing
+
+Learn how to test your UniPay integration effectively before going to production.
+
+## Test Mode
+
+All payment providers offer test mode with test API keys. Use these for development and testing.
+
+### Test API Keys
+
+```bash
+# .env.test
+STRIPE_SECRET_KEY=sk_test_your_test_key
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_test_secret
+```
+
+### Test Credentials
+
+#### Stripe Test Cards
+
+```
+Success: 4242 4242 4242 4242
+Decline: 4000 0000 0000 0002
+Insufficient funds: 4000 0000 0000 9995
+3D Secure required: 4000 0027 6000 3184
+
+Expiry: Any future date
+CVC: Any 3 digits
+```
+
+#### Razorpay Test Credentials
+
+```
+UPI: success@razorpay
+Card: 4111 1111 1111 1111
+CVV: 123
+Expiry: Any future date
+OTP: 1234
+```
+
+## Unit Testing
+
+```typescript
+import { describe, it, expect, beforeEach } from 'vitest'
+import { createPaymentClient, PaymentProvider } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+
+describe('Payment Creation', () => {
+  let client: PaymentClient
+
+  beforeEach(() => {
+    client = createPaymentClient({
+      adapters: [
+        new StripeAdapter({ secretKey: process.env.STRIPE_TEST_SECRET_KEY! })
+      ]
+    })
+  })
+
+  it('creates a payment successfully', async () => {
+    const result = await client.createPayment({
+      money: { amount: 5000, currency: 'USD' },
+      successUrl: 'https://example.com/success',
+      cancelUrl: 'https://example.com/cancel',
+      customer: { email: 'test@example.com' }
+    })
+
+    expect(result).toHaveProperty('unipayId')
+    expect(result).toHaveProperty('checkoutUrl')
+    expect(result.provider).toBe(PaymentProvider.STRIPE)
+  })
+
+  it('handles invalid currency', async () => {
+    await expect(
+      client.createPayment({
+        money: { amount: 5000, currency: 'INVALID' }
+      })
+    ).rejects.toThrow()
+  })
+})
+```
+
+## Integration Testing
+
+Test the complete payment flow:
+
+```typescript
+describe('Payment Flow', () => {
+  it('completes full payment cycle', async () => {
+    // 1. Create payment
+    const result = await client.createPayment({
+      money: { amount: 5000, currency: 'USD' },
+      // ...
+    })
+
+    // 2. Simulate payment (test mode)
+    // Visit result.checkoutUrl and complete test payment
+
+    // 3. Verify payment
+    const payment = await client.getPayment(result.unipayId)
+    expect(payment.status).toBe('SUCCEEDED')
+
+    // 4. Test refund
+    const refund = await client.createRefund(result.unipayId)
+    expect(refund.status).toBe('SUCCEEDED')
+  })
+})
+```
+
+## Webhook Testing
+
+### Using ngrok
+
+```bash
+# Terminal 1: Start your server
+npm run dev
+
+# Terminal 2: Expose to internet
+ngrok http 3000
+
+# Use https://abc123.ngrok.io/webhooks/stripe in provider dashboard
+```
+
+### Stripe CLI
+
+```bash
+stripe listen --forward-to localhost:3000/webhooks/stripe
+stripe trigger checkout.session.completed
+```
+
+### Manual Testing
+
+```typescript
+// Create test webhook endpoint
+app.post('/test-webhook', async (req, res) => {
+  const mockEvent = {
+    provider: PaymentProvider.STRIPE,
+    eventType: WebhookEventType.PAYMENT_SUCCEEDED,
+    // ... mock data
+  }
+
+  await processWebhookEvent(mockEvent)
+  res.json({ success: true })
+})
+```
+
+## Test Checklist
+
+- [ ] Payment creation (success & failure)
+- [ ] Payment retrieval
+- [ ] Refund creation (full & partial)
+- [ ] Refund listing
+- [ ] Webhook signature verification
+- [ ] Webhook event processing
+- [ ] Error handling for all error types
+- [ ] Idempotency (duplicate prevention)
+- [ ] Metadata persistence
+- [ ] Multi-currency routing
+- [ ] Different checkout modes
+
+## Next Steps
+
+- **[Production Checklist →](/guides/production)** - Go live preparation
+- **[Error Handling →](/guides/errors)** - Test error scenarios
+
+---

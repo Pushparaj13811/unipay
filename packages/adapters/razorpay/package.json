@@ -1,6 +1,6 @@
 {
   "name": "@uniipay/adapter-razorpay",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Razorpay payment gateway adapter for UniPay - Supporting Orders, Payment Links, UPI, cards, and webhooks for Indian payments",
   "keywords": [
     "razorpay",
@@ -21,7 +21,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",

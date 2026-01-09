@@ -1,0 +1,76 @@
+# API Reference
+
+Complete API documentation for all UniPay methods.
+
+## Coming Soon
+
+Detailed API reference documentation is being prepared. In the meantime:
+
+- See **[Basic Usage](/getting-started/basic-usage)** for payment methods
+- See **[Webhooks](/guides/webhooks)** for webhook handling
+- See **[Refunds](/guides/refunds)** for refund methods
+- See **[Error Handling](/guides/errors)** for error types
+
+## Quick Reference
+
+### Payment Client
+
+```typescript
+import { createPaymentClient } from '@uniipay/orchestrator'
+
+const client = createPaymentClient({
+  adapters: PaymentGatewayAdapter[]
+  resolutionStrategy?: 'first-available' | 'round-robin' | 'by-currency' | 'by-amount' | 'custom'
+  defaultProvider?: PaymentProvider
+  customResolver?: ProviderResolver
+  amountRoutes?: AmountRoute[]
+  webhookConfigs?: WebhookConfig[]
+})
+```
+
+### Payment Methods
+
+```typescript
+// Create payment
+createPayment(input: CreatePaymentInput, options?: PaymentOptions): Promise<CreatePaymentResult>
+
+// Get payment
+getPayment(unipayId: string): Promise<Payment>
+getPaymentByProviderId(provider: PaymentProvider, id: string): Promise<Payment>
+```
+
+### Refund Methods
+
+```typescript
+// Create refund
+createRefund(unipayId: string, input?: CreateRefundInput): Promise<Refund>
+
+// Get refund
+getRefund(provider: PaymentProvider, refundId: string): Promise<Refund>
+
+// List refunds
+listRefunds(unipayId: string): Promise<RefundList>
+```
+
+### Webhook Methods
+
+```typescript
+// Handle webhook
+handleWebhook(provider: PaymentProvider, request: WebhookRequest): Promise<WebhookEvent>
+
+// Verify signature only
+verifyWebhookSignature(provider: PaymentProvider, request: WebhookRequest): WebhookVerificationResult
+```
+
+### Utility Methods
+
+```typescript
+// Check capabilities
+getProviderCapabilities(provider: PaymentProvider): AdapterCapabilities | undefined
+
+// List providers
+getRegisteredProviders(): PaymentProvider[]
+
+// Check availability
+isProviderAvailable(provider: PaymentProvider): boolean
+```

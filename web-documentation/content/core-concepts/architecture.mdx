@@ -1,0 +1,79 @@
+# Architecture
+
+UniPay uses a layered architecture to provide a unified interface across payment providers.
+
+## Overview
+
+```
+┌──────────────────────────────────────┐
+│      Your Application Code           │
+└──────────────┬───────────────────────┘
+               │ Single Unified API
+┌──────────────▼───────────────────────┐
+│   Payment Orchestrator               │
+│   • Routing Logic                    │
+│   • Error Normalization              │
+│   • Webhook Handling                 │
+└──────┬────────────────┬──────────────┘
+       │                │
+┌──────▼──────┐  ┌─────▼───────┐
+│   Stripe    │  │  Razorpay   │
+│   Adapter   │  │   Adapter   │
+└──────┬──────┘  └─────┬───────┘
+       │                │
+┌──────▼──────┐  ┌─────▼───────┐
+│  Stripe API │  │ Razorpay API│
+└─────────────┘  └─────────────┘
+```
+
+## Components
+
+### 1. Orchestrator (@uniipay/orchestrator)
+
+The orchestrator is the main entry point:
+
+- Routes payments to correct provider
+- Normalizes responses
+- Handles errors uniformly
+- Manages webhooks
+
+```typescript
+const client = createPaymentClient({
+  adapters: [stripeAdapter, razorpayAdapter],
+  resolutionStrategy: 'by-currency'
+})
+```
+
+### 2. Adapters
+
+Each payment provider (Stripe, Razorpay) has its own adapter that translates between UniPay's unified API and the provider's specific API.
+
+## Key Benefits
+
+### Unified API
+
+Write payment code once and it works with all providers:
+
+```typescript
+// Same code works with Stripe, Razorpay, or any other provider
+const result = await client.createPayment({
+  money: { amount: 5000, currency: 'USD' }
+  // ...
+})
+```
+
+### Normalized Responses
+
+Provider-specific concepts are mapped to consistent types:
+
+| Concept | Stripe | Razorpay | UniPay |
+|---------|--------|----------|--------|
+| Status | `paid` | `captured` | `SUCCEEDED` |
+| Webhook | `checkout.session.completed` | `payment.captured` | `PAYMENT_SUCCEEDED` |
+
+## Next Steps
+
+- **[Routing Strategies →](/core-concepts/routing-strategies)** - Intelligent routing
+- **[Payment Adapters →](/adapters/overview)** - Available providers
+
+---

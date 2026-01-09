@@ -1,0 +1,201 @@
+# Production Checklist
+
+Essential steps before going live with UniPay in production.
+
+## Pre-Launch Checklist
+
+### 1. API Keys
+
+- [ ] Replace test keys with live keys
+- [ ] Store keys securely (environment variables, secrets manager)
+- [ ] Never commit keys to version control
+- [ ] Rotate keys periodically
+
+```bash
+# .env.production
+STRIPE_SECRET_KEY=sk_live_your_live_key
+STRIPE_WEBHOOK_SECRET=whsec_your_live_secret
+
+RAZORPAY_KEY_ID=rzp_live_your_key_id
+RAZORPAY_KEY_SECRET=your_live_secret
+RAZORPAY_WEBHOOK_SECRET=your_live_secret
+```
+
+### 2. Webhook Setup
+
+- [ ] Register webhook URLs with each provider
+- [ ] Use HTTPS URLs only
+- [ ] Configure webhook secrets
+- [ ] Test webhook delivery
+- [ ] Implement webhook retry logic
+- [ ] Monitor webhook failures
+
+### 3. Error Handling
+
+- [ ] Implement proper error handling for all scenarios
+- [ ] Log errors with context
+- [ ] Set up error alerting
+- [ ] Create fallback mechanisms
+- [ ] Test failure scenarios
+
+### 4. Security
+
+- [ ] Enable HTTPS everywhere
+- [ ] Validate webhook signatures
+- [ ] Implement rate limiting
+- [ ] Use idempotency keys
+- [ ] Sanitize user inputs
+- [ ] Enable CORS properly
+- [ ] Keep dependencies updated
+
+### 5. Monitoring
+
+- [ ] Set up application monitoring (DataDog, New Relic)
+- [ ] Track payment success rates
+- [ ] Monitor refund rates
+- [ ] Alert on high error rates
+- [ ] Dashboard for key metrics
+
+### 6. Database
+
+- [ ] Store payment IDs (UniPay IDs)
+- [ ] Index payment and refund tables
+- [ ] Implement proper backups
+- [ ] Set up database monitoring
+
+### 7. Compliance
+
+- [ ] Review PCI compliance requirements
+- [ ] Implement data retention policies
+- [ ] Set up privacy policy
+- [ ] Configure tax handling (if needed)
+- [ ] Review terms of service
+
+## Configuration
+
+### Production Client Setup
+
+```typescript
+import { createPaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+import { RazorpayAdapter } from '@uniipay/adapter-razorpay'
+
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+      // Add additional config for production
+    }),
+    new RazorpayAdapter({
+      keyId: process.env.RAZORPAY_KEY_ID!,
+      keySecret: process.env.RAZORPAY_KEY_SECRET!,
+    })
+  ],
+  resolutionStrategy: 'by-currency',
+  webhookConfigs: [
+    {
+      provider: 'STRIPE',
+      signingSecret: process.env.STRIPE_WEBHOOK_SECRET!
+    },
+    {
+      provider: 'RAZORPAY',
+      signingSecret: process.env.RAZORPAY_WEBHOOK_SECRET!
+    }
+  ]
+})
+```
+
+## Monitoring Setup
+
+```typescript
+// Track payment metrics
+async function trackPaymentMetrics(result: CreatePaymentResult) {
+  await analytics.track({
+    event: 'payment_created',
+    provider: result.provider,
+    currency: result.money?.currency,
+    amount: result.money?.amount,
+    checkoutMode: result.checkoutMode,
+    timestamp: new Date()
+  })
+}
+
+// Alert on failures
+async function alertOnFailure(error: Error) {
+  if (error instanceof PaymentCreationError) {
+    await alerting.send({
+      severity: 'HIGH',
+      message: `Payment creation failed: ${error.provider}`,
+      error: error.toJSON()
+    })
+  }
+}
+```
+
+## Performance Optimization
+
+### Connection Pooling
+
+```typescript
+// Reuse client instance
+const client = createPaymentClient({ /* ... */ })
+
+// Don't create new client for each request
+app.post('/payments', async (req, res) => {
+  // ❌ Bad: Creates new client every time
+  const client = createPaymentClient({ /* ... */ })
+
+  // ✅ Good: Reuse existing client
+  const result = await client.createPayment(req.body)
+})
+```
+
+### Caching
+
+```typescript
+// Cache provider capabilities
+const capabilitiesCache = new Map()
+
+function getCapabilities(provider: PaymentProvider) {
+  if (!capabilitiesCache.has(provider)) {
+    capabilitiesCache.set(
+      provider,
+      client.getProviderCapabilities(provider)
+    )
+  }
+  return capabilitiesCache.get(provider)
+}
+```
+
+## Go-Live Steps
+
+1. **Deploy to Staging**
+   - Test with live keys in staging
+   - Run full test suite
+   - Verify webhook delivery
+
+2. **Smoke Test**
+   - Create small test payment ($0.50)
+   - Verify success
+   - Test refund
+   - Check webhooks received
+
+3. **Deploy to Production**
+   - Deploy during low-traffic period
+   - Monitor logs for first hour
+   - Watch error rates
+
+4. **Post-Launch**
+   - Monitor for 24 hours
+   - Check payment success rates
+   - Verify webhook delivery rates
+   - Review error logs
+
+## Support
+
+- Review provider dashboards daily
+- Set up alerts for anomalies
+- Have rollback plan ready
+- Document incident response process
+
+---

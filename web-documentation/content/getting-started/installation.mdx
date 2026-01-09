@@ -1,0 +1,328 @@
+# Installation
+
+Get started with UniPay in under 5 minutes. This guide will walk you through installing the necessary packages and setting up your first payment integration.
+
+## Prerequisites
+
+Before installing UniPay, make sure you have:
+
+- **Node.js**: Version 18.x or higher
+- **Package Manager**: npm, yarn, or pnpm
+- **TypeScript** (optional but recommended): Version 5.x or higher
+- **Payment Provider Account**: At least one (Stripe, Razorpay, etc.)
+
+## Quick Install
+
+UniPay is a monorepo with multiple packages. You'll need:
+1. The **orchestrator** package (main client)
+2. At least **one adapter** package (for your payment provider)
+
+### With npm
+
+```bash
+# Install orchestrator + Stripe adapter
+npm install @uniipay/orchestrator @uniipay/adapter-stripe
+
+# Or with Razorpay
+npm install @uniipay/orchestrator @uniipay/adapter-razorpay
+
+# Or both
+npm install @uniipay/orchestrator @uniipay/adapter-stripe @uniipay/adapter-razorpay
+```
+
+### With yarn
+
+```bash
+yarn add @uniipay/orchestrator @uniipay/adapter-stripe @uniipay/adapter-razorpay
+```
+
+### With pnpm
+
+```bash
+pnpm add @uniipay/orchestrator @uniipay/adapter-stripe @uniipay/adapter-razorpay
+```
+
+## Package Overview
+
+### Core Packages
+
+| Package | Purpose | When to Install |
+|---------|---------|-----------------|
+| `@uniipay/orchestrator` | Main payment client with routing | **Always required** |
+| `@uniipay/core` | Type definitions and interfaces | Auto-installed as dependency |
+
+### Adapter Packages
+
+| Package | Provider | Region Focus | Install If |
+|---------|----------|--------------|------------|
+| `@uniipay/adapter-stripe` | Stripe | Global | You need global payments, cards, wallets |
+| `@uniipay/adapter-razorpay` | Razorpay | India | You need UPI, Indian cards, net banking |
+
+> **Note**: More adapters coming soon (PayU, PayPal, PhonePe, Cashfree)
+
+## Environment Setup
+
+### 1. Get API Keys
+
+#### For Stripe:
+1. Sign up at [stripe.com](https://stripe.com)
+2. Go to **Dashboard** → **Developers** → **API keys**
+3. Copy your **Secret key** (starts with `sk_test_` for test mode)
+4. Copy your **Webhook signing secret** (from **Developers** → **Webhooks**)
+
+#### For Razorpay:
+1. Sign up at [razorpay.com](https://razorpay.com)
+2. Go to **Settings** → **API Keys**
+3. Generate **Test Key** or **Live Key**
+4. Note down **Key ID** and **Key Secret**
+5. Copy **Webhook Secret** from **Settings** → **Webhooks**
+
+### 2. Configure Environment Variables
+
+Create a `.env` file in your project root:
+
+```bash
+# Stripe credentials
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+
+# Razorpay credentials
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_key_secret
+RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+
+# Application URLs
+SUCCESS_URL=http://localhost:3000/success
+CANCEL_URL=http://localhost:3000/cancel
+```
+
+### 3. Load Environment Variables
+
+```typescript
+// Using dotenv (install: npm install dotenv)
+import 'dotenv/config'
+
+// Or with Next.js - already handled automatically
+// Or with other frameworks - check their env loading docs
+```
+
+## Verify Installation
+
+Create a test file to verify everything is working:
+
+```typescript:verify-install.ts
+import { createPaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+
+// Create client
+const client = createPaymentClient({
+  adapters: [
+    new StripeAdapter({
+      secretKey: process.env.STRIPE_SECRET_KEY!
+    })
+  ]
+})
+
+// Check if provider is available
+const isAvailable = client.isProviderAvailable('STRIPE')
+console.log('Stripe available:', isAvailable)
+
+// Check capabilities
+const capabilities = client.getProviderCapabilities('STRIPE')
+console.log('Stripe capabilities:', capabilities)
+
+console.log('✅ UniPay is installed correctly!')
+```
+
+Run it:
+
+```bash
+npx tsx verify-install.ts
+# or
+node --loader ts-node/esm verify-install.ts
+# or
+ts-node verify-install.ts
+```
+
+You should see:
+
+```
+Stripe available: true
+Stripe capabilities: {
+  provider: 'STRIPE',
+  capabilities: Set(14) { ... },
+  supportedCurrencies: [ 'USD', 'EUR', 'GBP', 'INR', ... ]
+}
+✅ UniPay is installed correctly!
+```
+
+## TypeScript Configuration
+
+If you're using TypeScript, add these settings to your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  }
+}
+```
+
+UniPay provides full TypeScript definitions out of the box. You'll get:
+- ✅ Autocomplete for all methods
+- ✅ Type checking for payment inputs
+- ✅ Discriminated unions for checkout results
+- ✅ Compile-time error detection
+
+## Framework Integration
+
+### Express.js
+
+```bash
+npm install express @types/express
+```
+
+```typescript
+import express from 'express'
+import { createPaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+
+const app = express()
+app.use(express.json())
+
+const client = createPaymentClient({
+  adapters: [new StripeAdapter({ secretKey: process.env.STRIPE_SECRET_KEY! })]
+})
+
+app.post('/create-payment', async (req, res) => {
+  const result = await client.createPayment({
+    money: { amount: 5000, currency: 'USD' },
+    successUrl: process.env.SUCCESS_URL!,
+    cancelUrl: process.env.CANCEL_URL!,
+    customer: { email: req.body.email }
+  })
+  res.json({ checkoutUrl: result.checkoutUrl })
+})
+
+app.listen(3000)
+```
+
+### Next.js (App Router)
+
+```typescript:app/api/payments/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { createPaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+
+const client = createPaymentClient({
+  adapters: [new StripeAdapter({ secretKey: process.env.STRIPE_SECRET_KEY! })]
+})
+
+export async function POST(request: NextRequest) {
+  const { email, amount } = await request.json()
+
+  const result = await client.createPayment({
+    money: { amount, currency: 'USD' },
+    successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
+    cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL}/cancel`,
+    customer: { email }
+  })
+
+  return NextResponse.json({ checkoutUrl: result.checkoutUrl })
+}
+```
+
+### NestJS
+
+```typescript
+import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { createPaymentClient, PaymentClient } from '@uniipay/orchestrator'
+import { StripeAdapter } from '@uniipay/adapter-stripe'
+
+@Injectable()
+export class PaymentService {
+  private client: PaymentClient
+
+  constructor(private configService: ConfigService) {
+    this.client = createPaymentClient({
+      adapters: [
+        new StripeAdapter({
+          secretKey: this.configService.get('STRIPE_SECRET_KEY')!
+        })
+      ]
+    })
+  }
+
+  async createPayment(amount: number, currency: string, email: string) {
+    return this.client.createPayment({
+      money: { amount, currency },
+      successUrl: this.configService.get('SUCCESS_URL')!,
+      cancelUrl: this.configService.get('CANCEL_URL')!,
+      customer: { email }
+    })
+  }
+}
+```
+
+## Common Installation Issues
+
+### Issue: Module not found
+
+**Error**: `Cannot find module '@uniipay/orchestrator'`
+
+**Solution**:
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Remove node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Issue: TypeScript errors
+
+**Error**: `Cannot find type definitions for @uniipay/orchestrator`
+
+**Solution**: Types are included. Make sure you're using TypeScript 5.x+:
+```bash
+npm install -D typescript@latest
+```
+
+### Issue: ESM/CommonJS conflicts
+
+**Error**: `require() of ES Module not supported`
+
+**Solution**: Add to your `package.json`:
+```json
+{
+  "type": "module"
+}
+```
+
+Or use dynamic imports:
+```typescript
+const { createPaymentClient } = await import('@uniipay/orchestrator')
+```
+
+## Next Steps
+
+Now that you have UniPay installed, you're ready to:
+
+1. **[Create your first payment →](/getting-started/basic-usage)**
+2. **[Learn about routing strategies →](/core-concepts/routing-strategies)**
+3. **[Set up webhooks →](/webhooks/setup)**
+
+## Need Help?
+
+- 📚 [API Reference](/api-reference/payment-client)
+- 💬 [GitHub Discussions](https://github.com/Pushparaj13811/unipay/discussions)
+- 🐛 [Report an Issue](https://github.com/Pushparaj13811/unipay/issues)
